@@ -7,6 +7,12 @@ import {
     DialogClose,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs"
 import { ErrorPopup } from "../error-popup.jsx"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect, useRef } from "react"
@@ -14,7 +20,7 @@ import { CommonStateHandler } from "../../../utils/commonhandler.js"
 import { useDispatch, useSelector } from "react-redux"
 import { FormSubmitToast } from "./Toasts.jsx"
 import { Loading } from "../loading.jsx"
-import { HandleDeleteHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
+import { HandleDeleteHREmployees, HandleUpdateHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
 import { HandlePostHRDepartments, HandlePatchHRDepartments, HandleDeleteHRDepartments } from "../../../redux/Thunks/HRDepartmentPageThunk.js"
 import { useToast } from "../../../hooks/use-toast.js"
 import {
@@ -39,6 +45,18 @@ export const AddEmployeesDialogBox = () => {
         contactnumber: "",
         textpassword: "",
         password: "",
+        sss: "",
+        philhealth: "",
+        tin: "",
+        pagibig: "",
+        permanentaddress: "",
+        presentaddress: "",
+        birthdate: "",
+        birthplace: "",
+        designation: "",
+        startdate: "",
+        evaluationdate: "",
+        regularizationdate: ""
     })
 
     const handleformchange = (event) => {
@@ -49,68 +67,146 @@ export const AddEmployeesDialogBox = () => {
         <div className="AddEmployees-content">
             <Dialog>
                 <DialogTrigger className="bg-blue-800 border-2 border-blue-800 md:px-4 md:py-2 md:text-lg min-[250px]:px-2 min-[250px]:py-1 min-[250px]:text-sm text-white font-bold rounded-lg hover:bg-white hover:text-blue-800">Add Employees</DialogTrigger>
-                <DialogContent className="max-w-[315px] sm:max-w-[50vw] 2xl:max-w-[45vw]">
-                    <div className="add-employees-container flex flex-col gap-5">
+                <DialogContent className="max-w-[315px] sm:max-w-[80vw] 2xl:max-w-[60vw] h-[80vh] overflow-y-auto">
+                    <div className="add-employees-container flex flex-col gap-5 h-full">
                         <div className="heading">
                             <h1 className="font-bold text-2xl">Add Employee Info</h1>
                         </div>
-                        <div className="form-container grid md:grid-cols-2 min-[250px]:grid-cols-1 gap-4">
-                            <div className="form-group flex flex-col gap-3">
-                                <div className="label-input-field flex flex-col gap-1">
-                                    <label htmlFor="firstname" className="md:text-md lg:text-lg font-bold">First Name</label>
-                                    <input type="text"
-                                        id="firstname"
-                                        className="border-2 border-gray-700 rounded px-2 py-1"
-                                        name="firstname"
-                                        value={formdata.firstname}
-                                        onChange={handleformchange} />
+                        <Tabs defaultValue="account" className="w-full h-full flex flex-col">
+                            <TabsList className="grid w-full grid-cols-4 mb-4">
+                                <TabsTrigger value="account">Account</TabsTrigger>
+                                <TabsTrigger value="personal">Personal</TabsTrigger>
+                                <TabsTrigger value="employment">Employment</TabsTrigger>
+                                <TabsTrigger value="benefits">Benefits</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="account" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Account Details</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="firstname" className="md:text-md lg:text-lg font-bold">First Name</label>
+                                            <input type="text"
+                                                id="firstname"
+                                                className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="firstname"
+                                                value={formdata.firstname}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="lastname" className="md:text-md lg:text-lg font-bold">Last Name</label>
+                                            <input type="text"
+                                                id="lastname"
+                                                className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="lastname"
+                                                value={formdata.lastname}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="email" className="md:text-md lg:text-lg font-bold">Email</label>
+                                            <input type="email"
+                                                id="email" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="email"
+                                                value={formdata.email}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="contactnumber" className="md:text-md lg:text-lg font-bold">Contact Number</label>
+                                            <input type="number"
+                                                id="contactnumber" className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="contactnumber"
+                                                value={formdata.contactnumber}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="text-password" className="md:text-md lg:text-lg font-bold">Password</label>
+                                            <input type="text"
+                                                id="text-password" className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="textpassword"
+                                                value={formdata.textpassword}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="password" className="md:text-md lg:text-lg font-bold">Confirm Password</label>
+                                            <input type="password"
+                                                id="password" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="password"
+                                                value={formdata.password}
+                                                onChange={handleformchange} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="label-input-field flex flex-col gap-1">
-                                    <label htmlFor="lastname" className="md:text-md lg:text-lg font-bold">Last Name</label>
-                                    <input type="text"
-                                        id="lastanme"
-                                        className="border-2 border-gray-700 rounded px-2 py-1"
-                                        name="lastname"
-                                        value={formdata.lastname}
-                                        onChange={handleformchange} />
+                            </TabsContent>
+                            <TabsContent value="personal" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Personal Information</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Permanent Address</label>
+                                            <input type="text" name="permanentaddress" value={formdata.permanentaddress} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Present Address</label>
+                                            <input type="text" name="presentaddress" value={formdata.presentaddress} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Birth Date</label>
+                                            <input type="date" name="birthdate" value={formdata.birthdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Birth Place</label>
+                                            <input type="text" name="birthplace" value={formdata.birthplace} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="label-input-field flex flex-col gap-1">
-                                    <label htmlFor="email" className="md:text-md lg:text-lg font-bold">Email</label>
-                                    <input type="email"
-                                        id="email" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
-                                        name="email"
-                                        value={formdata.email}
-                                        onChange={handleformchange} />
+                            </TabsContent>
+                            <TabsContent value="employment" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Employment Information</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Designation</label>
+                                            <input type="text" name="designation" value={formdata.designation} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Start Date</label>
+                                            <input type="date" name="startdate" value={formdata.startdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Evaluation Date</label>
+                                            <input type="date" name="evaluationdate" value={formdata.evaluationdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Regularization Date</label>
+                                            <input type="date" name="regularizationdate" value={formdata.regularizationdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="form-group flex flex-col gap-3">
-                                <div className="label-input-field flex flex-col gap-1">
-                                    <label htmlFor="contactnumber" className="md:text-md lg:text-lg font-bold">Contact Number</label>
-                                    <input type="number"
-                                        id="contactnumber" className="border-2 border-gray-700 rounded px-2 py-1"
-                                        name="contactnumber"
-                                        value={formdata.contactnumber}
-                                        onChange={handleformchange} />
+                            </TabsContent>
+                            <TabsContent value="benefits" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Government Benefits</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">SSS</label>
+                                            <input type="text" name="sss" value={formdata.sss} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">PhilHealth</label>
+                                            <input type="text" name="philhealth" value={formdata.philhealth} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">TIN</label>
+                                            <input type="text" name="tin" value={formdata.tin} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Pag-ibig</label>
+                                            <input type="text" name="pagibig" value={formdata.pagibig} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="label-input-field flex flex-col gap-1">
-                                    <label htmlFor="text-password" className="md:text-md lg:text-lg font-bold">Password</label>
-                                    <input type="text"
-                                        id="text-password" className="border-2 border-gray-700 rounded px-2 py-1"
-                                        name="textpassword"
-                                        value={formdata.textpassword}
-                                        onChange={handleformchange} />
-                                </div>
-                                <div className="label-input-field flex flex-col gap-1">
-                                    <label htmlFor="password" className="md:text-md lg:text-lg font-bold">Confirm Password</label>
-                                    <input type="password"
-                                        id="password" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
-                                        name="password"
-                                        value={formdata.password}
-                                        onChange={handleformchange} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="add-button flex items-center justify-center">
+                            </TabsContent>
+                        </Tabs>
+                        <div className="add-button flex items-center justify-center mt-4 border-t pt-4">
                             <FormSubmitToast formdata={formdata} />
                         </div>
                     </div>
@@ -143,8 +239,9 @@ export const EmployeeDetailsDialogBox = ({ EmployeeID }) => {
                                 <p className="font-bold text-2xl">{`${employeeData.firstname} ${employeeData.lastname}`}</p>
                             </div>
                         </div>
-                        <div className="employees-all-details grid lg:grid-cols-2 min-[250px]:gap-2 lg:gap-10">
+                        <div className="employees-all-details grid lg:grid-cols-2 min-[250px]:gap-2 lg:gap-10 h-[50vh] overflow-y-auto pr-2">
                             <div className="details-group-1 flex flex-col gap-3">
+                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Personal Info</h2>
                                 <div className="label-value-pair flex items-center gap-2">
                                     <label className="font-bold md:text-sm xl:text-lg">First Name :</label>
                                     <p className="md:text-sm xl:text-lg">{employeeData.firstname}</p>
@@ -162,30 +259,85 @@ export const EmployeeDetailsDialogBox = ({ EmployeeID }) => {
                                     <p className="md:text-sm xl:text-lg">{employeeData.contactnumber}</p>
                                 </div>
                                 <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Department :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.department ? employeeData.department.name : "Not Specified"}</p>
+                                    <label className="font-bold md:text-sm xl:text-lg">Permanent Address :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.permanentaddress || "N/A"}</p>
+                                </div>
+                                <div className="label-value-pair flex items-center gap-2">
+                                    <label className="font-bold md:text-sm xl:text-lg">Present Address :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.presentaddress || "N/A"}</p>
+                                </div>
+                                <div className="label-value-pair flex items-center gap-2">
+                                    <label className="font-bold md:text-sm xl:text-lg">Birth Date :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.birthdate ? new Date(employeeData.birthdate).toLocaleDateString() : "N/A"}</p>
+                                </div>
+                                <div className="label-value-pair flex items-center gap-2">
+                                    <label className="font-bold md:text-sm xl:text-lg">Birth Place :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.birthplace || "N/A"}</p>
                                 </div>
                             </div>
-                            <div className="details-group-1 flex flex-col gap-3">
+                            <div className="details-group-2 flex flex-col gap-3">
+                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Employment Info</h2>
                                 <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Notices :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.notice.length}</p>
+                                    <label className="font-bold md:text-sm xl:text-lg">Designation :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.designation || "N/A"}</p>
                                 </div>
                                 <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Salary Records :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.salary.length}</p>
+                                    <label className="font-bold md:text-sm xl:text-lg">Start Date :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.startdate ? new Date(employeeData.startdate).toLocaleDateString() : "N/A"}</p>
                                 </div>
                                 <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Leave Requests :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.leaverequest.length}</p>
+                                    <label className="font-bold md:text-sm xl:text-lg">Evaluation Date :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.evaluationdate ? new Date(employeeData.evaluationdate).toLocaleDateString() : "N/A"}</p>
                                 </div>
                                 <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Requests :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.generaterequest.length}</p>
+                                    <label className="font-bold md:text-sm xl:text-lg">Regularization Date :</label>
+                                    <p className="md:text-sm xl:text-lg">{employeeData.regularizationdate ? new Date(employeeData.regularizationdate).toLocaleDateString() : "N/A"}</p>
                                 </div>
                                 <div className="label-value-pair flex items-center gap-2">
                                     <label className="font-bold md:text-sm xl:text-lg">Email Verify :</label>
                                     <p className="md:text-sm xl:text-lg">{employeeData.isverified ? "Verified" : "Not Verified"}</p>
+                                </div>
+                            </div>
+                            <div className="details-group-3 flex flex-col gap-3 lg:col-span-2">
+                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Government Benefits</h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="label-value-pair flex items-center gap-2">
+                                        <label className="font-bold md:text-sm xl:text-lg">SSS :</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.sss || "N/A"}</p>
+                                    </div>
+                                    <div className="label-value-pair flex items-center gap-2">
+                                        <label className="font-bold md:text-sm xl:text-lg">PhilHealth :</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.philhealth || "N/A"}</p>
+                                    </div>
+                                    <div className="label-value-pair flex items-center gap-2">
+                                        <label className="font-bold md:text-sm xl:text-lg">TIN :</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.tin || "N/A"}</p>
+                                    </div>
+                                    <div className="label-value-pair flex items-center gap-2">
+                                        <label className="font-bold md:text-sm xl:text-lg">Pag-ibig :</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.pagibig || "N/A"}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="details-group-4 flex flex-col gap-3 lg:col-span-2">
+                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Stats</h2>
+                                <div className="grid grid-cols-4 gap-4">
+                                    <div className="label-value-pair flex flex-col items-center gap-1">
+                                        <label className="font-bold md:text-sm xl:text-lg">Notices</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.notice.length}</p>
+                                    </div>
+                                    <div className="label-value-pair flex flex-col items-center gap-1">
+                                        <label className="font-bold md:text-sm xl:text-lg">Salary</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.salary.length}</p>
+                                    </div>
+                                    <div className="label-value-pair flex flex-col items-center gap-1">
+                                        <label className="font-bold md:text-sm xl:text-lg">Leaves</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.leaverequest.length}</p>
+                                    </div>
+                                    <div className="label-value-pair flex flex-col items-center gap-1">
+                                        <label className="font-bold md:text-sm xl:text-lg">Requests</label>
+                                        <p className="md:text-sm xl:text-lg">{employeeData.generaterequest.length}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -402,6 +554,199 @@ export const RemoveEmployeeFromDepartmentDialogBox = ({ DepartmentName, Departme
                             </DialogClose>
                             <DialogClose asChild>
                                 <Button className="btn-sm btn-blue-700 text-md border-2 min-[250px]:px-2 min-[250px]:py-1 sm:px-1 sm:py-0.5 xl:px-2 xl:py-1 rounded-md bg-green-700 border-green-700 hover:bg-transparent hover:text-green-700">Cancel</Button>
+                            </DialogClose>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </div>
+    )
+}
+
+export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
+    const dispatch = useDispatch()
+    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const [formdata, setformdata] = useState({
+        firstname: "",
+        lastname: "",
+        email: "",
+        contactnumber: "",
+        sss: "",
+        philhealth: "",
+        tin: "",
+        pagibig: "",
+        permanentaddress: "",
+        presentaddress: "",
+        birthdate: "",
+        birthplace: "",
+        designation: "",
+        startdate: "",
+        evaluationdate: "",
+        regularizationdate: ""
+    })
+
+    const handleformchange = (event) => {
+        CommonStateHandler(formdata, setformdata, event)
+    }
+
+    useEffect(() => {
+        const employee = HREmployeesState.data.find((item) => item._id === EmployeeID)
+        if (employee) {
+            setformdata({
+                firstname: employee.firstname || "",
+                lastname: employee.lastname || "",
+                email: employee.email || "",
+                contactnumber: employee.contactnumber || "",
+                sss: employee.sss || "",
+                philhealth: employee.philhealth || "",
+                tin: employee.tin || "",
+                pagibig: employee.pagibig || "",
+                permanentaddress: employee.permanentaddress || "",
+                presentaddress: employee.presentaddress || "",
+                birthdate: employee.birthdate ? employee.birthdate.split('T')[0] : "",
+                birthplace: employee.birthplace || "",
+                designation: employee.designation || "",
+                startdate: employee.startdate ? employee.startdate.split('T')[0] : "",
+                evaluationdate: employee.evaluationdate ? employee.evaluationdate.split('T')[0] : "",
+                regularizationdate: employee.regularizationdate ? employee.regularizationdate.split('T')[0] : "",
+            })
+        }
+    }, [EmployeeID, HREmployeesState.data])
+
+    const UpdateEmployee = () => {
+        dispatch(HandleUpdateHREmployees({ apiroute: "UPDATE", data: { employeeId: EmployeeID, updatedEmployee: formdata } }))
+    }
+
+    return (
+        <div className="UpdateEmployees-content">
+            <Dialog>
+                <DialogTrigger className="btn-sm btn-blue-700 text-md border-2 border-blue-800 min-[250px]:px-2 min-[250px]:py-1 sm:px-1 sm:py-0.5 xl:px-2 xl:py-1 rounded-md hover:bg-blue-800 hover:text-white">Modify</DialogTrigger>
+                <DialogContent className="max-w-[315px] sm:max-w-[80vw] 2xl:max-w-[60vw] h-[80vh] overflow-y-auto">
+                    <div className="add-employees-container flex flex-col gap-5 h-full">
+                        <div className="heading">
+                            <h1 className="font-bold text-2xl">Modify Employee Info</h1>
+                        </div>
+                        <Tabs defaultValue="account" className="w-full h-full flex flex-col">
+                            <TabsList className="grid w-full grid-cols-4 mb-4">
+                                <TabsTrigger value="account">Account</TabsTrigger>
+                                <TabsTrigger value="personal">Personal</TabsTrigger>
+                                <TabsTrigger value="employment">Employment</TabsTrigger>
+                                <TabsTrigger value="benefits">Benefits</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="account" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Account Details</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="firstname" className="md:text-md lg:text-lg font-bold">First Name</label>
+                                            <input type="text"
+                                                id="firstname"
+                                                className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="firstname"
+                                                value={formdata.firstname}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="lastname" className="md:text-md lg:text-lg font-bold">Last Name</label>
+                                            <input type="text"
+                                                id="lastname"
+                                                className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="lastname"
+                                                value={formdata.lastname}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="email" className="md:text-md lg:text-lg font-bold">Email</label>
+                                            <input type="email"
+                                                id="email" readOnly={true} className="border-2 border-gray-700 rounded px-2 py-1 bg-gray-200"
+                                                name="email"
+                                                value={formdata.email}
+                                                onChange={handleformchange} />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label htmlFor="contactnumber" className="md:text-md lg:text-lg font-bold">Contact Number</label>
+                                            <input type="number"
+                                                id="contactnumber" className="border-2 border-gray-700 rounded px-2 py-1"
+                                                name="contactnumber"
+                                                value={formdata.contactnumber}
+                                                onChange={handleformchange} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="personal" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Personal Information</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Permanent Address</label>
+                                            <input type="text" name="permanentaddress" value={formdata.permanentaddress} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Present Address</label>
+                                            <input type="text" name="presentaddress" value={formdata.presentaddress} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Birth Date</label>
+                                            <input type="date" name="birthdate" value={formdata.birthdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Birth Place</label>
+                                            <input type="text" name="birthplace" value={formdata.birthplace} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="employment" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Employment Information</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Designation</label>
+                                            <input type="text" name="designation" value={formdata.designation} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Start Date</label>
+                                            <input type="date" name="startdate" value={formdata.startdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Evaluation Date</label>
+                                            <input type="date" name="evaluationdate" value={formdata.evaluationdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Regularization Date</label>
+                                            <input type="date" name="regularizationdate" value={formdata.regularizationdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="benefits" className="flex-1">
+                                <div className="form-group flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2">Government Benefits</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">SSS</label>
+                                            <input type="text" name="sss" value={formdata.sss} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">PhilHealth</label>
+                                            <input type="text" name="philhealth" value={formdata.philhealth} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">TIN</label>
+                                            <input type="text" name="tin" value={formdata.tin} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Pag-ibig</label>
+                                            <input type="text" name="pagibig" value={formdata.pagibig} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+                        <div className="add-button flex items-center justify-center mt-4 border-t pt-4">
+                            <DialogClose asChild>
+                                <Button className="btn-sm btn-blue-700 text-md border-2 bg-blue-700 border-blue-700 px-4 py-2 rounded-lg hover:bg-white hover:text-blue-700" onClick={() => UpdateEmployee()}>Update Employee</Button>
                             </DialogClose>
                         </div>
                     </div>

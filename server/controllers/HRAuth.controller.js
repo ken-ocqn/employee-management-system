@@ -135,12 +135,24 @@ export const HandleHRLogin = async (req, res) => {
     }
 }
 
+import { TokenBlacklist } from "../models/TokenBlacklist.model.js"
+import jwt from 'jsonwebtoken'
+
 export const HandleHRLogout = async (req, res) => {
     try {
+        const token = req.cookies.HRtoken
+        if (token) {
+            const decoded = jwt.decode(token)
+            if (decoded && decoded.exp) {
+                const expiresAt = new Date(decoded.exp * 1000)
+                await TokenBlacklist.create({ token, expiresAt })
+            }
+        }
+
         res.clearCookie("HRtoken")
-        return res.status(200).json({ success: true, message: "HR Logged Out Successfully" })
+        return res.status(200).json({ success: true, message: "HR Logged Out Successfully", type: "HRLogout" })
     } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal server Error", error: error })
+        return res.status(500).json({ success: false, message: "Internal server Error", error: error, type: "HRLogout" })
     }
 }
 

@@ -1,16 +1,14 @@
-import { ListWrapper } from "../../../components/common/Dashboard/ListDesigns"
-import { HeadingBar } from "../../../components/common/Dashboard/ListDesigns"
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { HandleGetHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
 import { Loading } from "../../../components/common/loading.jsx"
-import { ListItems } from "../../../components/common/Dashboard/ListDesigns"
-import { ListContainer } from "../../../components/common/Dashboard/ListDesigns"
 import { AddEmployeesDialogBox } from "../../../components/common/Dashboard/dialogboxes.jsx"
+import { DataTable } from "../../../components/common/DataTable.jsx"
+import { columns } from "./columns.jsx"
+
 export const HREmployeesPage = () => {
     const dispatch = useDispatch()
     const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
-    const table_headings = ["Full Name", "Email", "Department", "Contact Number", "Modify Employee"]
 
     useEffect(() => {
         if (HREmployeesState.fetchData) {
@@ -37,12 +35,7 @@ export const HREmployeesPage = () => {
                 </div>
             </div>
             <div className="employees-data flex flex-col gap-4 md:pe-5 overflow-auto">
-                <ListWrapper>
-                    <HeadingBar table_layout={"grid-cols-5"} table_headings={table_headings} />
-                </ListWrapper>
-                <ListContainer>
-                    <ListItems TargetedState={HREmployeesState} />
-                </ListContainer>
+                <DataTable columns={columns} data={HREmployeesState.data || []} searchKey="email" />
             </div>
         </div>
     )

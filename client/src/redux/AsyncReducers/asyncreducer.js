@@ -96,6 +96,12 @@ export const HRAsyncReducer = (builder, thunk) => {
                 state.error.status = false;
                 state.data = action.payload;
             }
+            if (action.payload.type == "HRLogout") {
+                state.isAuthenticated = false;
+                state.data = null;
+                state.isLoading = false;
+                state.error.status = false;
+            }
         })
         .addCase(thunk.rejected, (state, action) => {
             if (action.payload.type == "signup") {
@@ -210,11 +216,10 @@ export const HRDepartmentPageAsyncReducer = (builder, thunk) => {
             state.success.message = null
             state.success.content = null
         }
-        else if (action.payload.type === "CreateDepartment" || 
-            action.payload.type === "DepartmentDelete" || 
-            action.payload.type === "DepartmentEMUpdate" || 
-            action.payload.type === "RemoveEmployeeDE") 
-            {
+        else if (action.payload.type === "CreateDepartment" ||
+            action.payload.type === "DepartmentDelete" ||
+            action.payload.type === "DepartmentEMUpdate" ||
+            action.payload.type === "RemoveEmployeeDE") {
             state.isLoading = false;
             state.error.status = false;
             state.error.message = null

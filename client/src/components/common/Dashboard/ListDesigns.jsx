@@ -1,4 +1,4 @@
-import { EmployeeDetailsDialogBox } from "./dialogboxes.jsx"
+import { EmployeeDetailsDialogBox, UpdateEmployeeDialogBox } from "./dialogboxes.jsx"
 import { DeleteEmployeeDialogBox } from "./dialogboxes.jsx"
 import { RemoveEmployeeFromDepartmentDialogBox } from "./dialogboxes.jsx"
 
@@ -50,6 +50,7 @@ export const ListItems = ({ TargetedState }) => {
                 <div className="heading-content text-blue-800 font-bold min-[250px]:text-xs xl:text-lg p-2 rounded-lg text-center flex justify-center items-center min-[250px]:gap-1 xl:gap-2">
                     {/* <button className="btn-sm btn-blue-700 text-md border-2 border-blue-800 px-2 py-1 rounded-md hover:bg-blue-800 hover:text-white">View</button> */}
                     <EmployeeDetailsDialogBox EmployeeID={item._id} />
+                    <UpdateEmployeeDialogBox EmployeeID={item._id} />
                     <DeleteEmployeeDialogBox EmployeeID={item._id} />
                 </div>
             </div>) : null}
@@ -73,7 +74,7 @@ export const DepartmentListItems = ({ TargetedState }) => {
                     {item.contactnumber}
                 </div>
                 <div className="heading-content text-blue-800 font-bold min-[250px]:text-xs xl:text-lg p-2 rounded-lg text-center flex justify-center items-center min-[250px]:gap-1 xl:gap-2">
-                    <RemoveEmployeeFromDepartmentDialogBox DepartmentName={TargetedState.name} DepartmentID={TargetedState._id} EmployeeID={item._id}/>
+                    <RemoveEmployeeFromDepartmentDialogBox DepartmentName={TargetedState.name} DepartmentID={TargetedState._id} EmployeeID={item._id} />
                 </div>
             </div>) : null}
         </>

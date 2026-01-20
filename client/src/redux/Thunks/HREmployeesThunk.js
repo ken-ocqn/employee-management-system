@@ -14,12 +14,24 @@ export const HandleGetHREmployees = createAsyncThunk('HandleGetHREmployees', asy
     catch (error) {
         return rejectWithValue(error.response.data);
     }
-}) 
+})
 
 export const HandlePostHREmployees = createAsyncThunk('HandlePostHREmploy', async (HREmployeeData, { rejectWithValue }) => {
     try {
         const { apiroute, data } = HREmployeeData
         const response = await apiService.post(`${HREmployeesPageEndPoints[apiroute]}`, data, {
+            withCredentials: true
+        })
+        return response.data
+    } catch (error) {
+        return rejectWithValue(error.response.data);
+    }
+})
+
+export const HandleUpdateHREmployees = createAsyncThunk('HandleUpdateHREmployees', async (HREmployeeData, { rejectWithValue }) => {
+    try {
+        const { apiroute, data } = HREmployeeData
+        const response = await apiService.patch(`${HREmployeesPageEndPoints[apiroute]}`, data, {
             withCredentials: true
         })
         return response.data
@@ -34,7 +46,7 @@ export const HandleDeleteHREmployees = createAsyncThunk("HandleDeleteHREmployees
         const RouteArray = apiroute.split(".")
         if (RouteArray.length > 0) {
             const response = await apiService.delete(`${HREmployeesPageEndPoints[RouteArray[0]](RouteArray[1])}`, {
-                withCredentials : true
+                withCredentials: true
             })
             return response.data
         }

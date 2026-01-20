@@ -13,6 +13,8 @@ router.get("/all-employees-ids", VerifyhHRToken, RoleAuthorization("HR-Admin"), 
 
 router.patch("/update-employee", VerifyEmployeeToken, HandleEmployeeUpdate)
 
+router.patch("/update-employee-by-hr", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeUpdate)
+
 router.delete("/delete-employee/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeDelete)
 
 router.get("/by-HR/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeByHR)

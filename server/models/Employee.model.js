@@ -7,7 +7,7 @@ const EmployeeSchema = new Schema({
         required: true
     },
     lastname: {
-        type: String, 
+        type: String,
         required: true
     },
     email: {
@@ -28,6 +28,42 @@ const EmployeeSchema = new Schema({
     contactnumber: {
         type: String,
         required: true,
+    },
+    sss: {
+        type: String
+    },
+    philhealth: {
+        type: String
+    },
+    tin: {
+        type: String
+    },
+    pagibig: {
+        type: String
+    },
+    permanentaddress: {
+        type: String
+    },
+    presentaddress: {
+        type: String
+    },
+    birthdate: {
+        type: Date
+    },
+    birthplace: {
+        type: String
+    },
+    designation: {
+        type: String
+    },
+    startdate: {
+        type: Date
+    },
+    evaluationdate: {
+        type: Date
+    },
+    regularizationdate: {
+        type: Date
     },
     role: {
         type: String,

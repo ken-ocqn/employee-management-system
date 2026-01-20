@@ -44,7 +44,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { HandleGetHRDepartments } from "../../../redux/Thunks/HRDepartmentPageThunk"
 import { Loading } from "../loading.jsx"
 import { HeadingBar } from "./ListDesigns.jsx"
-import { DepartmentListItems } from "./ListDesigns.jsx"
+// import { DepartmentListItems } from "./ListDesigns.jsx"
 import { useToast } from "../../../hooks/use-toast.js"
 import { EmployeesIDSDialogBox } from "./dialogboxes.jsx"
 
@@ -202,9 +202,15 @@ export const ComboDropDown = ({ DepartmentData, CurrentDepartment, SetCurrentDep
 }
 
 
+import { DataTable } from "../DataTable.jsx"
+import { getDepartmentEmployeesColumns, getDepartmentNoticeColumns } from "./departmentColumns.jsx"
+
 export const DepartmentContent = ({ CurrentDepartmentData }) => {
-    const table_headings_employees = ["Full Name", "Email", "Contact Number", "Remove Employee"]
-    const table_headings_notice = ["Title", "Audience", "Createdby", "View Notice"]
+    // const table_headings_employees = ["Full Name", "Email", "Contact Number", "Remove Employee"]
+    // const table_headings_notice = ["Title", "Audience", "Createdby", "View Notice"]
+
+    const columns = getDepartmentEmployeesColumns(CurrentDepartmentData.name, CurrentDepartmentData._id)
+    const noticeColumns = getDepartmentNoticeColumns()
 
     return (
         <>
@@ -229,11 +235,18 @@ export const DepartmentContent = ({ CurrentDepartmentData }) => {
                     </div>
                 </div>
                 <TabsContent value="account" className={`border-2 border-blue-500 rounded-lg min-[250px]:h-[100%] md:h-[85%] min-[1650px]:h-[90%] overflow-auto p-2`}>
-                    <HeadingBar table_layout={"grid-cols-4"} table_headings={table_headings_employees} />
-                    <DepartmentListItems TargetedState={CurrentDepartmentData} />
+                    <DataTable
+                        columns={columns}
+                        data={CurrentDepartmentData.employees || []}
+                        searchKey="email"
+                    />
                 </TabsContent>
                 <TabsContent value="password" className={`border-2 border-blue-500 rounded-lg min-[250px]:h-[100%] md:h-[85%] min-[1650px]:h-[90%] overflow-auto p-2`}>
-                    <HeadingBar table_layout={"grid-cols-4"} table_headings={table_headings_notice} />
+                    <DataTable
+                        columns={noticeColumns}
+                        data={CurrentDepartmentData.notice || []}
+                        searchKey="title"
+                    />
                 </TabsContent>
             </Tabs>
         </>

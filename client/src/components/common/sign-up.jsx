@@ -154,8 +154,8 @@ export const SignUP = ({ handlesignupform, handlesubmitform, stateformdata, erro
                         </div>
                     </div> */}
 
-                
-                
+
+
                 <div className="form-button-group w-full grid grid-cols-1 gap-5">
 
                     <div className="form-container grid min-[250px]:grid-cols-1 sm:grid-cols-2 w-full min-[250px]:gap-3 sm:gap-10 justify-center items-center">
@@ -177,7 +177,7 @@ export const SignUP = ({ handlesignupform, handlesubmitform, stateformdata, erro
                             </div>
                             <div className="label-field-pair flex flex-col">
                                 <label htmlFor="lastname">
-                                    last Name
+                                    Last Name
                                 </label>
                                 <input
                                     id="lastname"

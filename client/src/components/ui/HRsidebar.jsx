@@ -11,9 +11,24 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { HandlePostHumanResources } from "@/redux/Thunks/HRThunk.js"
+import { LogOut } from "lucide-react"
 
 export function HRdashboardSidebar() {
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    const handleLogout = () => {
+        dispatch(HandlePostHumanResources({ apiroute: "LOGOUT", data: {} }))
+            .then((res) => {
+                if (res.payload && res.payload.type === "HRLogout") {
+                    navigate("/auth/HR/login")
+                }
+            })
+    }
+
     return (
         <Sidebar>
             <SidebarContent>
@@ -112,6 +127,12 @@ export function HRdashboardSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 
+                            <SidebarMenuItem className="my-1 mt-auto">
+                                <SidebarMenuButton className="gap-4 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleLogout}>
+                                    <LogOut className="w-7" />
+                                    <button className="text-[16px] font-bold">Logout</button>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                         </SidebarMenu>
 
                     </SidebarGroupContent>
