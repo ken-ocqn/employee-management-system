@@ -8,7 +8,25 @@ import { Organization } from "../models/Organization.model.js"
 
 
 export const HandleEmplyoeeSignup = async (req, res) => {
-    const { firstname, lastname, email, password, contactnumber } = req.body
+    const {
+        firstname,
+        lastname,
+        email,
+        password,
+        contactnumber,
+        permanentaddress,
+        presentaddress,
+        birthdate,
+        birthplace,
+        designation,
+        startdate,
+        evaluationdate,
+        regularizationdate,
+        sss,
+        philhealth,
+        tin,
+        pagibig
+    } = req.body
     try {
 
         if (!firstname || !lastname || !email || !password || !contactnumber) {
@@ -37,10 +55,29 @@ export const HandleEmplyoeeSignup = async (req, res) => {
                 email: email,
                 password: hashedPassword,
                 contactnumber: contactnumber,
+                permanentaddress: permanentaddress,
+                presentaddress: presentaddress,
+                birthdate: birthdate,
+                birthplace: birthplace,
+                designation: designation,
+                startdate: startdate,
+                evaluationdate: evaluationdate,
+                regularizationdate: regularizationdate,
+                sss: sss,
+                philhealth: philhealth,
+                tin: tin,
+                pagibig: pagibig,
                 role: "Employee",
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000,
-                organizationID: organization._id
+                organizationID: organization._id,
+                leaveCredits: organization.defaultLeaveCredits || {
+                    sickLeave: 15,
+                    vacationLeave: 15,
+                    emergencyLeave: 5,
+                    maternityLeave: 105,
+                    paternityLeave: 7
+                }
             })
 
             organization.employees.push(newEmployee._id)

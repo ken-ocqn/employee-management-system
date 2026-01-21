@@ -5,9 +5,9 @@ import { Leave } from "../models/Leave.model.js"
 
 export const HandleCreateLeave = async (req, res) => {
     try {
-        const { employeeID, startdate, enddate, title, reason } = req.body
+        const { employeeID, startdate, enddate, title, reason, leaveType } = req.body
 
-        if (!employeeID || !startdate || !enddate || !title || !reason) {
+        if (!employeeID || !startdate || !enddate || !title || !reason || !leaveType) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         }
 
@@ -28,12 +28,30 @@ export const HandleCreateLeave = async (req, res) => {
             return res.status(400).json({ success: false, message: "Leave record already exists for this employee" })
         }
 
+        const start = new Date(startdate)
+        const end = new Date(enddate)
+        const dayCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1
+
+        if (dayCount <= 0) {
+            return res.status(400).json({ success: false, message: "Invalid date range" })
+        }
+
+        // Credit check
+        if (leaveType !== "Unpaid") {
+            const creditField = leaveType.charAt(0).toLowerCase() + leaveType.slice(1) + "Leave"
+            if (employee.leaveCredits[creditField] < dayCount) {
+                return res.status(400).json({ success: false, message: `Insufficient ${leaveType} leave credits. Available: ${employee.leaveCredits[creditField]}` })
+            }
+        }
+
         const leave = await Leave.create({
             employee: employeeID,
-            startdate: new Date(startdate),
-            enddate: new Date(enddate),
+            startdate: start,
+            enddate: end,
             title,
             reason,
+            leaveType,
+            dayCount,
             organizationID: req.ORGID
         })
 
@@ -117,10 +135,26 @@ export const HandleUpdateLeavebyHR = async (req, res) => {
             return res.status(404).json({ success: false, message: "HR not found" })
         }
 
+        const oldStatus = leave.status
         leave.status = status
         leave.approvedby = HRID
 
         await leave.save()
+
+        // Handle credit deduction/restoration
+        if (leave.leaveType !== "Unpaid") {
+            const employee = await Employee.findById(leave.employee)
+            const creditField = leave.leaveType.charAt(0).toLowerCase() + leave.leaveType.slice(1) + "Leave"
+
+            if (status === "Approved" && oldStatus !== "Approved") {
+                employee.leaveCredits[creditField] -= leave.dayCount
+                await employee.save()
+            } else if (status !== "Approved" && oldStatus === "Approved") {
+                employee.leaveCredits[creditField] += leave.dayCount
+                await employee.save()
+            }
+        }
+
         return res.status(200).json({ success: true, message: "Leave record updated successfully", data: leave })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" })
@@ -139,6 +173,12 @@ export const HandleDeleteLeave = async (req, res) => {
         const employee = await Employee.findById(leave.employee)
         const index = employee.leaverequest.indexOf(leaveID)
         employee.leaverequest.splice(index, 1)
+
+        // Restore credits if an approved leave is deleted
+        if (leave.status === "Approved" && leave.leaveType !== "Unpaid") {
+            const creditField = leave.leaveType.charAt(0).toLowerCase() + leave.leaveType.slice(1) + "Leave"
+            employee.leaveCredits[creditField] += leave.dayCount
+        }
 
         await employee.save()
         await leave.deleteOne()

@@ -12,6 +12,8 @@ import { HRDashboardPage } from "../pages/HumanResources/Dashboard Childs/dashbo
 import { HRProtectedRoutes } from "./HRprotectedroutes.jsx"
 import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employeespage.jsx"
 import { HRDepartmentPage } from "../pages/HumanResources/Dashboard Childs/departmentpage.jsx"
+import { HRLandLeavesPage } from "../pages/HumanResources/Dashboard Childs/leavespage.jsx"
+import { Navigate } from "react-router-dom"
 export const HRRoutes = [
     {
         path: "/auth/HR/signup",
@@ -19,7 +21,7 @@ export const HRRoutes = [
     },
     {
         path: "/auth/HR/login",
-        element: <HRLogin />
+        element: <Navigate to="/" replace />
     },
     {
         path: "/HR/dashboard",
@@ -36,6 +38,10 @@ export const HRRoutes = [
             {
                 path: "/HR/dashboard/departments",
                 element: <HRDepartmentPage />
+            },
+            {
+                path: "/HR/dashboard/leaves",
+                element: <HRLandLeavesPage />
             }
         ]
     },

@@ -2,7 +2,8 @@ export const APIsEndPoints = {
     LOGIN: "/api/auth/employee/login",
     CHECKELOGIN: "/api/auth/employee/check-login",
     FORGOT_PASSWORD: "/api/auth/employee/forgot-password",
-    RESET_PASSWORD: (token) => `/api/auth/employee/reset-password/${token}`
+    RESET_PASSWORD: (token) => `/api/auth/employee/reset-password/${token}`,
+    LOGOUT: "/api/auth/employee/logout"
 }
 
 export const HREndPoints = {
@@ -38,4 +39,17 @@ export const HRDepartmentPageEndPoints = {
 
 export const EmployeesIDsEndPoints = {
     GETALL: "/api/v1/employee/all-employees-ids",
-} 
+}
+
+export const LeaveEndPoints = {
+    CREATE: "/api/v1/leave/apply",
+    GETALL: "/api/v1/leave/",
+    GETONE: (id) => `/api/v1/leave/${id}`,
+    UPDATEBYHR: (id) => `/api/v1/leave/hr/update/${id}`,
+    DELETE: (id) => `/api/v1/leave/delete/${id}`
+}
+
+export const OrganizationEndPoints = {
+    GETDETAILS: "/api/v1/organization/",
+    UPDATEDEFAULTS: "/api/v1/organization/leave-credits"
+}

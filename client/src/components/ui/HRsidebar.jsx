@@ -24,7 +24,7 @@ export function HRdashboardSidebar() {
         dispatch(HandlePostHumanResources({ apiroute: "LOGOUT", data: {} }))
             .then((res) => {
                 if (res.payload && res.payload.type === "HRLogout") {
-                    navigate("/auth/HR/login")
+                    navigate("/")
                 }
             })
     }
@@ -85,12 +85,14 @@ export function HRdashboardSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 
-                            <SidebarMenuItem className="my-1">
-                                <SidebarMenuButton className="gap-4">
-                                    <img src="/../../src/assets/HR-Dashboard/leave.png" alt="" className="w-7" />
-                                    <button className="text-[16px]">Leaves</button>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            <NavLink to={"/HR/dashboard/leaves"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
+                                <SidebarMenuItem className="my-1 hover:bg-blue-200 rounded-lg">
+                                    <SidebarMenuButton className="gap-4">
+                                        <img src="/../../src/assets/HR-Dashboard/leave.png" alt="" className="w-7" />
+                                        <button className="text-[16px]">Leaves</button>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </NavLink>
 
                             <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">

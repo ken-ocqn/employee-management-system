@@ -7,6 +7,8 @@ import { ResetPassword } from "../pages/Employees/resetpassword.jsx"
 import { EntryPage } from "../pages/Employees/EntryPage.jsx"
 // import { VerifyEmailPage } from "../pages/common/verifyemailpage.jsx"
 
+import { Navigate } from "react-router-dom"
+
 export const EmployeeRoutes = [
     {
         path: "/",
@@ -14,7 +16,7 @@ export const EmployeeRoutes = [
     },
     {
         path: "/auth/employee/login",
-        element: <EmployeeLogin />
+        element: <Navigate to="/" replace />
     },
     // {
     //     path: "/auth/employee/verify-email", 
@@ -34,7 +36,7 @@ export const EmployeeRoutes = [
     },
     {
         path: "/auth/employee/resetpassword/:token",
-        element: <ResetPassword /> 
+        element: <ResetPassword />
     },
 ]
 

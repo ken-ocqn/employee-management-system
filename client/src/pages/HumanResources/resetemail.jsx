@@ -17,7 +17,7 @@ export const ResetHRVerifyEmailPage = () => {
 
     const handleverifybutton = () => {
         loadingbar.current.continuousStart();
-        dispatch(HandlePostHumanResources({ apiroute: "RESEND_VERIFY_EMAIL", data: emailvalue })) 
+        dispatch(HandlePostHumanResources({ apiroute: "RESEND_VERIFY_EMAIL", data: emailvalue }))
     }
 
     const handleverifyemail = (event) => {
@@ -31,7 +31,7 @@ export const ResetHRVerifyEmailPage = () => {
     useEffect(() => {
         if (HRState.isVerified) {
             loadingbar.current.complete()
-            navigate("/auth/HR/dashboard")
+            navigate("/HR/dashboard")
         }
 
         if (HRState.isVerifiedEmailAvailable) {
@@ -45,7 +45,7 @@ export const ResetHRVerifyEmailPage = () => {
     return (
         <>
             <LoadingBar ref={loadingbar} />
-            <ResetVerifyEmailPage handleverifybutton={handleverifybutton} handleverifyemail={handleverifyemail} emailvalue={emailvalue.email} targetstate={HRState}/>
+            <ResetVerifyEmailPage handleverifybutton={handleverifybutton} handleverifyemail={handleverifyemail} emailvalue={emailvalue.email} targetstate={HRState} />
         </>
     )
 }

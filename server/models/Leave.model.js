@@ -24,6 +24,17 @@ const LeaveSchema = new Schema({
     type: String,
     required: true
   },
+  leaveType: {
+    type: String,
+    required: true,
+    enum: ["Sick", "Vacation", "Emergency", "Maternity", "Paternity", "Unpaid"],
+    default: "Sick"
+  },
+  dayCount: {
+    type: Number,
+    required: true,
+    default: 1
+  },
   status: {
     type: String,
     required: true,

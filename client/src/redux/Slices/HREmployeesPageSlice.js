@@ -1,15 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { HREmployeesPageAsyncReducer } from "../AsyncReducers/asyncreducer.js";
-import { HandleDeleteHREmployees, HandlePostHREmployees, HandleGetHREmployees } from "../Thunks/HREmployeesThunk.js";
+import { HandleDeleteHREmployees, HandlePostHREmployees, HandleGetHREmployees, HandleUpdateHREmployees } from "../Thunks/HREmployeesThunk.js";
 
 const HREmployeesSlice = createSlice({
     name: "HREmployees",
     initialState: {
-        data: null, 
+        data: null,
         isLoading: false,
         success: false,
-        fetchData : false, 
-        employeeData : null,
+        fetchData: false,
+        employeeData: null,
         error: {
             status: false,
             message: null,
@@ -17,8 +17,9 @@ const HREmployeesSlice = createSlice({
         }
     },
     extraReducers: (builder) => {
-        HREmployeesPageAsyncReducer(builder, HandleGetHREmployees) 
+        HREmployeesPageAsyncReducer(builder, HandleGetHREmployees)
         HREmployeesPageAsyncReducer(builder, HandlePostHREmployees)
+        HREmployeesPageAsyncReducer(builder, HandleUpdateHREmployees)
         HREmployeesPageAsyncReducer(builder, HandleDeleteHREmployees)
     }
 })

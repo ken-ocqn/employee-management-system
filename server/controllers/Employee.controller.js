@@ -62,7 +62,7 @@ export const HandleEmployeeUpdate = async (req, res) => {
         }
 
         const employee = await Employee.findByIdAndUpdate(employeeId, updatedEmployee, { new: true }).select("firstname lastname email contactnumber designation startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department")
-        return res.status(200).json({ success: true, data: employee })
+        return res.status(200).json({ success: true, data: employee, type: "EmployeeUpdate" })
 
     } catch (error) {
         return res.status(500).json({ success: false, error: error, message: "internal server error" })

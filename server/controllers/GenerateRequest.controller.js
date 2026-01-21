@@ -52,8 +52,8 @@ export const HandleCreateGenerateRequest = async (req, res) => {
 
 export const HandleAllGenerateRequest = async (req, res) => {
     try {
-        const requestes = await GenerateRequest.find({ organizationID: req.ORGID }).populate("employee department", "firstname lastname name")
-        return res.status(200).json({ success: true, message: "All requestes retrieved successfully", data: requestes })
+        const requests = await GenerateRequest.find({ organizationID: req.ORGID }).populate("employee department", "firstname lastname name")
+        return res.status(200).json({ success: true, message: "All requests retrieved successfully", data: requests })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }

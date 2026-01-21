@@ -125,6 +125,13 @@ const EmployeeSchema = new Schema({
     organizationID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Organization"
+    },
+    leaveCredits: {
+        sickLeave: { type: Number, default: 15 },
+        vacationLeave: { type: Number, default: 15 },
+        emergencyLeave: { type: Number, default: 5 },
+        maternityLeave: { type: Number, default: 105 },
+        paternityLeave: { type: Number, default: 7 }
     }
 },
     { timestamps: true }

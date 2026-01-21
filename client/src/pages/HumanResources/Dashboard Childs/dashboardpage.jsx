@@ -28,16 +28,16 @@ export const HRDashboardPage = () => {
         },
         {
             image: "/../../src/assets/HR-Dashboard/request.png",
-            dataname: "requestes",
-            path: "/HR/dashboard/requestes"
+            dataname: "requests",
+            path: "/HR/dashboard/requests"
         }
     ]
 
     useEffect(() => {
         dispatch(HandleGetDashboard({ apiroute: "GETDATA" }))
-    },[])
+    }, [])
 
-    if (DashboardState.isLoading) { 
+    if (DashboardState.isLoading) {
         return (
             <Loading />
         )

@@ -17,6 +17,7 @@ import InterviewInsightRouter from './routes/InterviewInsights.route.js'
 import GenerateRequestRouter from './routes/GenerateRequest.route.js'
 import CorporateCalendarRouter from './routes/CorporateCalendar.route.js'
 import BalanceRouter from './routes/Balance.route.js'
+import OrganizationRouter from './routes/Organization.route.js'
 import { ConnectDB } from './config/connectDB.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors"
@@ -34,11 +35,11 @@ app.use(cors({
 }));
 // app.options('*', cors())
 
-app.use("/api/auth/employee", EmployeeAuthRouter) 
+app.use("/api/auth/employee", EmployeeAuthRouter)
 
 app.use("/api/auth/HR", HRAuthrouter)
 
-app.use("/api/v1/dashboard", DashboardRouter) 
+app.use("/api/v1/dashboard", DashboardRouter)
 
 app.use("/api/v1/employee", EmployeeRouter)
 
@@ -65,6 +66,8 @@ app.use("/api/v1/generate-request", GenerateRequestRouter)
 app.use("/api/v1/corporate-calendar", CorporateCalendarRouter)
 
 app.use("/api/v1/balance", BalanceRouter)
+
+app.use("/api/v1/organization", OrganizationRouter)
 
 app.listen(process.env.PORT, async () => {
   await ConnectDB()

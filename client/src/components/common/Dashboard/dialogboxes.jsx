@@ -34,6 +34,20 @@ import {
     CommandShortcut,
 } from "@/components/ui/command"
 import { fetchEmployeesIDs } from "../../../redux/Thunks/EmployeesIDsThunk.js"
+import {
+    validateName,
+    validateEmail,
+    validatePhoneNumber,
+    validateSSS,
+    validatePhilHealth,
+    validateTIN,
+    validatePagibig,
+    validateAge,
+    validateFutureDate,
+    validatePassword,
+    validateAddress,
+    validateTextField
+} from "../../../utils/formValidation.js"
 
 
 export const AddEmployeesDialogBox = () => {
@@ -59,9 +73,139 @@ export const AddEmployeesDialogBox = () => {
         regularizationdate: ""
     })
 
-    const handleformchange = (event) => {
-        CommonStateHandler(formdata, setformdata, event)
+    const [errors, setErrors] = useState({})
+
+    const validateField = (name, value) => {
+        let error = '';
+
+        switch (name) {
+            case 'firstname':
+            case 'lastname':
+                if (value && !validateName(value)) {
+                    error = 'Must be 2-50 characters, letters only';
+                }
+                break;
+            case 'email':
+                if (value && !validateEmail(value)) {
+                    error = 'Invalid email format';
+                }
+                break;
+            case 'contactnumber':
+                if (value && !validatePhoneNumber(value)) {
+                    error = 'Must be 10-11 digits';
+                }
+                break;
+            case 'textpassword':
+                if (value && !validatePassword(value)) {
+                    error = 'Must be at least 8 characters';
+                }
+                break;
+            case 'sss':
+                if (value && !validateSSS(value)) {
+                    error = 'Invalid format (XX-XXXXXXX-X or 10 digits)';
+                }
+                break;
+            case 'philhealth':
+                if (value && !validatePhilHealth(value)) {
+                    error = 'Invalid format (XX-XXXXXXXXX-X or 12 digits)';
+                }
+                break;
+            case 'tin':
+                if (value && !validateTIN(value)) {
+                    error = 'Invalid format (XXX-XXX-XXX or 9-12 digits)';
+                }
+                break;
+            case 'pagibig':
+                if (value && !validatePagibig(value)) {
+                    error = 'Invalid format (XXXX-XXXX-XXXX or 12 digits)';
+                }
+                break;
+            case 'permanentaddress':
+            case 'presentaddress':
+                if (value && !validateAddress(value)) {
+                    error = 'Must be 10-200 characters';
+                }
+                break;
+            case 'birthdate':
+                if (value && !validateAge(value)) {
+                    error = 'Must be at least 18 years old';
+                }
+                break;
+            case 'birthplace':
+            case 'designation':
+                if (value && !validateTextField(value)) {
+                    error = 'Must be 2-100 characters';
+                }
+                break;
+            case 'startdate':
+                if (value && !validateFutureDate(value)) {
+                    error = 'Cannot be in the future';
+                }
+                break;
+        }
+
+        setErrors(prev => ({ ...prev, [name]: error }));
+        return error === '';
     }
+
+    const handleformchange = (event) => {
+        const { name, value } = event.target;
+        CommonStateHandler(formdata, setformdata, event);
+        validateField(name, value);
+    }
+
+
+    // Auto-compute evaluation and regularization dates based on start date
+    useEffect(() => {
+        if (formdata.startdate) {
+            const startDate = new Date(formdata.startdate);
+
+            // Calculate evaluation date (4 months after start date)
+            const evalDate = new Date(startDate);
+            evalDate.setMonth(evalDate.getMonth() + 4);
+
+            // Calculate regularization date (6 months after start date)
+            const regDate = new Date(startDate);
+            regDate.setMonth(regDate.getMonth() + 6);
+
+            // Format dates as YYYY-MM-DD
+            const formatDate = (date) => date.toISOString().split('T')[0];
+
+            setformdata(prev => ({
+                ...prev,
+                evaluationdate: formatDate(evalDate),
+                regularizationdate: formatDate(regDate)
+            }));
+        }
+    }, [formdata.startdate]);
+
+    // Check if form is complete and valid
+    const isFormValid = () => {
+        // Define required fields
+        const requiredFields = [
+            'firstname',
+            'lastname',
+            'email',
+            'contactnumber',
+            'textpassword',
+            'password',
+            'designation',
+            'startdate'
+        ];
+
+        // Check if required fields have validation errors
+        const hasRequiredFieldErrors = requiredFields.some(field => errors[field] && errors[field] !== '');
+        if (hasRequiredFieldErrors) return false;
+
+        // Check if all required fields are filled
+        const allRequiredFilled = requiredFields.every(field => {
+            return formdata[field] && formdata[field].trim() !== '';
+        });
+
+        return allRequiredFilled;
+    };
+
+
 
     return (
         <div className="AddEmployees-content">
@@ -87,43 +231,48 @@ export const AddEmployeesDialogBox = () => {
                                             <label htmlFor="firstname" className="md:text-md lg:text-lg font-bold">First Name</label>
                                             <input type="text"
                                                 id="firstname"
-                                                className="border-2 border-gray-700 rounded px-2 py-1"
+                                                className={`border-2 rounded px-2 py-1 ${errors.firstname ? 'border-red-500' : 'border-gray-700'}`}
                                                 name="firstname"
                                                 value={formdata.firstname}
                                                 onChange={handleformchange} />
+                                            {errors.firstname && <span className="text-red-500 text-xs mt-1">{errors.firstname}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label htmlFor="lastname" className="md:text-md lg:text-lg font-bold">Last Name</label>
                                             <input type="text"
                                                 id="lastname"
-                                                className="border-2 border-gray-700 rounded px-2 py-1"
+                                                className={`border-2 rounded px-2 py-1 ${errors.lastname ? 'border-red-500' : 'border-gray-700'}`}
                                                 name="lastname"
                                                 value={formdata.lastname}
                                                 onChange={handleformchange} />
+                                            {errors.lastname && <span className="text-red-500 text-xs mt-1">{errors.lastname}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label htmlFor="email" className="md:text-md lg:text-lg font-bold">Email</label>
                                             <input type="email"
-                                                id="email" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
+                                                id="email" required={true} className={`border-2 rounded px-2 py-1 ${errors.email ? 'border-red-500' : 'border-gray-700'}`}
                                                 name="email"
                                                 value={formdata.email}
                                                 onChange={handleformchange} />
+                                            {errors.email && <span className="text-red-500 text-xs mt-1">{errors.email}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label htmlFor="contactnumber" className="md:text-md lg:text-lg font-bold">Contact Number</label>
                                             <input type="number"
-                                                id="contactnumber" className="border-2 border-gray-700 rounded px-2 py-1"
+                                                id="contactnumber" className={`border-2 rounded px-2 py-1 ${errors.contactnumber ? 'border-red-500' : 'border-gray-700'}`}
                                                 name="contactnumber"
                                                 value={formdata.contactnumber}
                                                 onChange={handleformchange} />
+                                            {errors.contactnumber && <span className="text-red-500 text-xs mt-1">{errors.contactnumber}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label htmlFor="text-password" className="md:text-md lg:text-lg font-bold">Password</label>
-                                            <input type="text"
-                                                id="text-password" className="border-2 border-gray-700 rounded px-2 py-1"
+                                            <input type="password"
+                                                id="text-password" className={`border-2 rounded px-2 py-1 ${errors.textpassword ? 'border-red-500' : 'border-gray-700'}`}
                                                 name="textpassword"
                                                 value={formdata.textpassword}
                                                 onChange={handleformchange} />
+                                            {errors.textpassword && <span className="text-red-500 text-xs mt-1">{errors.textpassword}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label htmlFor="password" className="md:text-md lg:text-lg font-bold">Confirm Password</label>
@@ -188,26 +337,30 @@ export const AddEmployeesDialogBox = () => {
                                     <div className="grid md:grid-cols-2 gap-4">
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">SSS</label>
-                                            <input type="text" name="sss" value={formdata.sss} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                            <input type="text" name="sss" value={formdata.sss} onChange={handleformchange} className={`border-2 rounded px-2 py-1 ${errors.sss ? 'border-red-500' : 'border-gray-700'}`} placeholder="XX-XXXXXXX-X" />
+                                            {errors.sss && <span className="text-red-500 text-xs mt-1">{errors.sss}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">PhilHealth</label>
-                                            <input type="text" name="philhealth" value={formdata.philhealth} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                            <input type="text" name="philhealth" value={formdata.philhealth} onChange={handleformchange} className={`border-2 rounded px-2 py-1 ${errors.philhealth ? 'border-red-500' : 'border-gray-700'}`} placeholder="XX-XXXXXXXXX-X" />
+                                            {errors.philhealth && <span className="text-red-500 text-xs mt-1">{errors.philhealth}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">TIN</label>
-                                            <input type="text" name="tin" value={formdata.tin} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                            <input type="text" name="tin" value={formdata.tin} onChange={handleformchange} className={`border-2 rounded px-2 py-1 ${errors.tin ? 'border-red-500' : 'border-gray-700'}`} placeholder="XXX-XXX-XXX" />
+                                            {errors.tin && <span className="text-red-500 text-xs mt-1">{errors.tin}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">Pag-ibig</label>
-                                            <input type="text" name="pagibig" value={formdata.pagibig} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                            <input type="text" name="pagibig" value={formdata.pagibig} onChange={handleformchange} className={`border-2 rounded px-2 py-1 ${errors.pagibig ? 'border-red-500' : 'border-gray-700'}`} placeholder="XXXX-XXXX-XXXX" />
+                                            {errors.pagibig && <span className="text-red-500 text-xs mt-1">{errors.pagibig}</span>}
                                         </div>
                                     </div>
                                 </div>
                             </TabsContent>
                         </Tabs>
                         <div className="add-button flex items-center justify-center mt-4 border-t pt-4">
-                            <FormSubmitToast formdata={formdata} />
+                            <FormSubmitToast formdata={formdata} disabled={!isFormValid()} />
                         </div>
                     </div>
                 </DialogContent>
@@ -229,8 +382,8 @@ export const EmployeeDetailsDialogBox = ({ EmployeeID }) => {
                 <div>
                     <DialogTrigger className="btn-sm btn-blue-700 text-md border-2 border-blue-800 min-[250px]:px-2 min-[250px]:py-1 sm:px-1 sm:py-0.5 xl:px-2 xl:py-1 rounded-md hover:bg-blue-800 hover:text-white">View</DialogTrigger>
                 </div>
-                <DialogContent className="max-w-[315px] lg:max-w-[55vw] 2xl:max-w-[45vw]">
-                    <div className="employee-data-container flex flex-col gap-4">
+                <DialogContent className="max-w-[315px] sm:max-w-[70vw] 2xl:max-w-[50vw] h-[70vh] overflow-y-auto">
+                    <div className="employee-data-container flex flex-col gap-4 h-full">
                         <div className="employee-profile-logo flex items-center gap-3">
                             <div className="logo border-2 border-blue-800 rounded-[50%] flex justify-center items-center">
                                 <p className="font-bold text-2xl text-blue-700 p-2">{`${employeeData.firstname.slice(0, 1).toUpperCase()} ${employeeData.lastname.slice(0, 1).toUpperCase()}`}</p>
@@ -239,114 +392,133 @@ export const EmployeeDetailsDialogBox = ({ EmployeeID }) => {
                                 <p className="font-bold text-2xl">{`${employeeData.firstname} ${employeeData.lastname}`}</p>
                             </div>
                         </div>
-                        <div className="employees-all-details grid lg:grid-cols-2 min-[250px]:gap-2 lg:gap-10 h-[50vh] overflow-y-auto pr-2">
-                            <div className="details-group-1 flex flex-col gap-3">
-                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Personal Info</h2>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">First Name :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.firstname}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Last Name :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.lastname}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Email :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.email}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Contact Number :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.contactnumber}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Permanent Address :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.permanentaddress || "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Present Address :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.presentaddress || "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Birth Date :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.birthdate ? new Date(employeeData.birthdate).toLocaleDateString() : "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Birth Place :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.birthplace || "N/A"}</p>
-                                </div>
-                            </div>
-                            <div className="details-group-2 flex flex-col gap-3">
-                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Employment Info</h2>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Designation :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.designation || "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Start Date :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.startdate ? new Date(employeeData.startdate).toLocaleDateString() : "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Evaluation Date :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.evaluationdate ? new Date(employeeData.evaluationdate).toLocaleDateString() : "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Regularization Date :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.regularizationdate ? new Date(employeeData.regularizationdate).toLocaleDateString() : "N/A"}</p>
-                                </div>
-                                <div className="label-value-pair flex items-center gap-2">
-                                    <label className="font-bold md:text-sm xl:text-lg">Email Verify :</label>
-                                    <p className="md:text-sm xl:text-lg">{employeeData.isverified ? "Verified" : "Not Verified"}</p>
-                                </div>
-                            </div>
-                            <div className="details-group-3 flex flex-col gap-3 lg:col-span-2">
-                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Government Benefits</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="label-value-pair flex items-center gap-2">
-                                        <label className="font-bold md:text-sm xl:text-lg">SSS :</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.sss || "N/A"}</p>
-                                    </div>
-                                    <div className="label-value-pair flex items-center gap-2">
-                                        <label className="font-bold md:text-sm xl:text-lg">PhilHealth :</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.philhealth || "N/A"}</p>
-                                    </div>
-                                    <div className="label-value-pair flex items-center gap-2">
-                                        <label className="font-bold md:text-sm xl:text-lg">TIN :</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.tin || "N/A"}</p>
-                                    </div>
-                                    <div className="label-value-pair flex items-center gap-2">
-                                        <label className="font-bold md:text-sm xl:text-lg">Pag-ibig :</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.pagibig || "N/A"}</p>
+                        <Tabs defaultValue="personal" className="w-full flex-1 flex flex-col">
+                            <TabsList className="grid w-full grid-cols-4 mb-4">
+                                <TabsTrigger value="personal">Personal</TabsTrigger>
+                                <TabsTrigger value="employment">Employment</TabsTrigger>
+                                <TabsTrigger value="benefits">Benefits</TabsTrigger>
+                                <TabsTrigger value="stats">Stats</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="personal" className="flex-1 overflow-y-auto">
+                                <div className="personal-info-container flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2 border-b-2 border-gray-300 pb-2">Personal Information</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">First Name</label>
+                                            <p className="text-base">{employeeData.firstname}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Last Name</label>
+                                            <p className="text-base">{employeeData.lastname}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Email</label>
+                                            <p className="text-base">{employeeData.email}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Contact Number</label>
+                                            <p className="text-base">{employeeData.contactnumber}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Permanent Address</label>
+                                            <p className="text-base">{employeeData.permanentaddress || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Present Address</label>
+                                            <p className="text-base">{employeeData.presentaddress || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Birth Date</label>
+                                            <p className="text-base">{employeeData.birthdate ? new Date(employeeData.birthdate).toLocaleDateString() : "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Birth Place</label>
+                                            <p className="text-base">{employeeData.birthplace || "N/A"}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="details-group-4 flex flex-col gap-3 lg:col-span-2">
-                                <h2 className="font-bold text-lg border-b-2 border-gray-300">Stats</h2>
-                                <div className="grid grid-cols-4 gap-4">
-                                    <div className="label-value-pair flex flex-col items-center gap-1">
-                                        <label className="font-bold md:text-sm xl:text-lg">Notices</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.notice.length}</p>
-                                    </div>
-                                    <div className="label-value-pair flex flex-col items-center gap-1">
-                                        <label className="font-bold md:text-sm xl:text-lg">Salary</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.salary.length}</p>
-                                    </div>
-                                    <div className="label-value-pair flex flex-col items-center gap-1">
-                                        <label className="font-bold md:text-sm xl:text-lg">Leaves</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.leaverequest.length}</p>
-                                    </div>
-                                    <div className="label-value-pair flex flex-col items-center gap-1">
-                                        <label className="font-bold md:text-sm xl:text-lg">Requests</label>
-                                        <p className="md:text-sm xl:text-lg">{employeeData.generaterequest.length}</p>
+                            </TabsContent>
+                            <TabsContent value="employment" className="flex-1 overflow-y-auto">
+                                <div className="employment-info-container flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2 border-b-2 border-gray-300 pb-2">Employment Information</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Designation</label>
+                                            <p className="text-base">{employeeData.designation || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Start Date</label>
+                                            <p className="text-base">{employeeData.startdate ? new Date(employeeData.startdate).toLocaleDateString() : "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Evaluation Date</label>
+                                            <p className="text-base">{employeeData.evaluationdate ? new Date(employeeData.evaluationdate).toLocaleDateString() : "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Regularization Date</label>
+                                            <p className="text-base">{employeeData.regularizationdate ? new Date(employeeData.regularizationdate).toLocaleDateString() : "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Email Verification</label>
+                                            <p className="text-base">{employeeData.isverified ? "✓ Verified" : "✗ Not Verified"}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </TabsContent>
+                            <TabsContent value="benefits" className="flex-1 overflow-y-auto">
+                                <div className="benefits-info-container flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2 border-b-2 border-gray-300 pb-2">Government Benefits</h2>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">SSS</label>
+                                            <p className="text-base">{employeeData.sss || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">PhilHealth</label>
+                                            <p className="text-base">{employeeData.philhealth || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">TIN</label>
+                                            <p className="text-base">{employeeData.tin || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Pag-ibig</label>
+                                            <p className="text-base">{employeeData.pagibig || "N/A"}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="stats" className="flex-1 overflow-y-auto">
+                                <div className="stats-info-container flex flex-col gap-3">
+                                    <h2 className="font-bold text-lg mb-2 border-b-2 border-gray-300 pb-2">Statistics</h2>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        <div className="stat-card flex flex-col items-center gap-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                            <label className="font-bold text-sm text-gray-600">Notices</label>
+                                            <p className="text-3xl font-bold text-blue-700">{employeeData.notice.length}</p>
+                                        </div>
+                                        <div className="stat-card flex flex-col items-center gap-2 p-4 bg-green-50 rounded-lg border border-green-200">
+                                            <label className="font-bold text-sm text-gray-600">Salary</label>
+                                            <p className="text-3xl font-bold text-green-700">{employeeData.salary.length}</p>
+                                        </div>
+                                        <div className="stat-card flex flex-col items-center gap-2 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                            <label className="font-bold text-sm text-gray-600">Leaves</label>
+                                            <p className="text-3xl font-bold text-yellow-700">{employeeData.leaverequest.length}</p>
+                                        </div>
+                                        <div className="stat-card flex flex-col items-center gap-2 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                            <label className="font-bold text-sm text-gray-600">Requests</label>
+                                            <p className="text-3xl font-bold text-purple-700">{employeeData.generaterequest.length}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </DialogContent>
             </Dialog>
         </div>
     )
 }
+
 
 
 export const DeleteEmployeeDialogBox = ({ EmployeeID }) => {
@@ -585,9 +757,82 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
         regularizationdate: ""
     })
 
-    const handleformchange = (event) => {
-        CommonStateHandler(formdata, setformdata, event)
+    const [errors, setErrors] = useState({})
+
+    const validateField = (name, value) => {
+        let error = '';
+
+        switch (name) {
+            case 'firstname':
+            case 'lastname':
+                if (value && !validateName(value)) {
+                    error = 'Must be 2-50 characters, letters only';
+                }
+                break;
+            case 'email':
+                if (value && !validateEmail(value)) {
+                    error = 'Invalid email format';
+                }
+                break;
+            case 'contactnumber':
+                if (value && !validatePhoneNumber(value)) {
+                    error = 'Must be 10-11 digits';
+                }
+                break;
+            case 'sss':
+                if (value && !validateSSS(value)) {
+                    error = 'Invalid format (XX-XXXXXXX-X or 10 digits)';
+                }
+                break;
+            case 'philhealth':
+                if (value && !validatePhilHealth(value)) {
+                    error = 'Invalid format (XX-XXXXXXXXX-X or 12 digits)';
+                }
+                break;
+            case 'tin':
+                if (value && !validateTIN(value)) {
+                    error = 'Invalid format (XXX-XXX-XXX or 9-12 digits)';
+                }
+                break;
+            case 'pagibig':
+                if (value && !validatePagibig(value)) {
+                    error = 'Invalid format (XXXX-XXXX-XXXX or 12 digits)';
+                }
+                break;
+            case 'permanentaddress':
+            case 'presentaddress':
+                if (value && !validateAddress(value)) {
+                    error = 'Must be 10-200 characters';
+                }
+                break;
+            case 'birthdate':
+                if (value && !validateAge(value)) {
+                    error = 'Must be at least 18 years old';
+                }
+                break;
+            case 'birthplace':
+            case 'designation':
+                if (value && !validateTextField(value)) {
+                    error = 'Must be 2-100 characters';
+                }
+                break;
+            case 'startdate':
+                if (value && !validateFutureDate(value)) {
+                    error = 'Cannot be in the future';
+                }
+                break;
+        }
+
+        setErrors(prev => ({ ...prev, [name]: error }));
+        return error === '';
     }
+
+    const handleformchange = (event) => {
+        const { name, value } = event.target;
+        CommonStateHandler(formdata, setformdata, event);
+        validateField(name, value);
+    }
+
 
     useEffect(() => {
         const employee = HREmployeesState.data.find((item) => item._id === EmployeeID)
@@ -613,9 +858,86 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
         }
     }, [EmployeeID, HREmployeesState.data])
 
+    // Auto-compute evaluation and regularization dates based on start date
+    useEffect(() => {
+        if (formdata.startdate) {
+            const startDate = new Date(formdata.startdate);
+
+            // Calculate evaluation date (4 months after start date)
+            const evalDate = new Date(startDate);
+            evalDate.setMonth(evalDate.getMonth() + 4);
+
+            // Calculate regularization date (6 months after start date)
+            const regDate = new Date(startDate);
+            regDate.setMonth(regDate.getMonth() + 6);
+
+            // Format dates as YYYY-MM-DD
+            const formatDate = (date) => date.toISOString().split('T')[0];
+
+            setformdata(prev => ({
+                ...prev,
+                evaluationdate: formatDate(evalDate),
+                regularizationdate: formatDate(regDate)
+            }));
+        }
+    }, [formdata.startdate]);
+
+    // Check if form is complete and valid
+    const isFormValid = () => {
+        // Define required fields
+        const requiredFields = [
+            'firstname',
+            'lastname',
+            'email',
+            'contactnumber',
+            'designation',
+            'startdate'
+        ];
+
+        // Check if required fields have validation errors
+        const hasRequiredFieldErrors = requiredFields.some(field => errors[field] && errors[field] !== '');
+        if (hasRequiredFieldErrors) return false;
+
+        // Check if all required fields are filled
+        const allRequiredFilled = requiredFields.every(field => {
+            return formdata[field] && formdata[field].trim() !== '';
+        });
+
+        return allRequiredFilled;
+    };
+
     const UpdateEmployee = () => {
         dispatch(HandleUpdateHREmployees({ apiroute: "UPDATE", data: { employeeId: EmployeeID, updatedEmployee: formdata } }))
     }
+
+    const { toast } = useToast()
+    const prevFetchDataRef = useRef(false)
+    const prevErrorRef = useRef(false)
+
+    // Watch for update success/failure and show toast
+    useEffect(() => {
+        // Success notification
+        if (HREmployeesState.fetchData && !prevFetchDataRef.current) {
+            toast({
+                title: "Success!",
+                description: "Employee updated successfully.",
+                className: "bg-green-50 border-green-500",
+            })
+        }
+
+        // Error notification
+        if (HREmployeesState.error.status && !prevErrorRef.current) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: HREmployeesState.error.message || "Failed to update employee. Please try again.",
+            })
+        }
+
+        // Update refs
+        prevFetchDataRef.current = HREmployeesState.fetchData
+        prevErrorRef.current = HREmployeesState.error.status
+    }, [HREmployeesState.fetchData, HREmployeesState.error.status, toast])
 
     return (
         <div className="UpdateEmployees-content">
@@ -746,7 +1068,13 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
                         </Tabs>
                         <div className="add-button flex items-center justify-center mt-4 border-t pt-4">
                             <DialogClose asChild>
-                                <Button className="btn-sm btn-blue-700 text-md border-2 bg-blue-700 border-blue-700 px-4 py-2 rounded-lg hover:bg-white hover:text-blue-700" onClick={() => UpdateEmployee()}>Update Employee</Button>
+                                <Button
+                                    disabled={!isFormValid() || HREmployeesState.isLoading}
+                                    className={`btn-sm btn-blue-700 text-md border-2 bg-blue-700 border-blue-700 px-4 py-2 rounded-lg ${(!isFormValid() || HREmployeesState.isLoading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white hover:text-blue-700'}`}
+                                    onClick={() => UpdateEmployee()}
+                                >
+                                    {HREmployeesState.isLoading ? "Updating..." : "Update Employee"}
+                                </Button>
                             </DialogClose>
                         </div>
                     </div>
