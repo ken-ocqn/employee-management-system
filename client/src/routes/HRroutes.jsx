@@ -13,6 +13,8 @@ import { HRProtectedRoutes } from "./HRprotectedroutes.jsx"
 import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employeespage.jsx"
 import { HRDepartmentPage } from "../pages/HumanResources/Dashboard Childs/departmentpage.jsx"
 import { HRLandLeavesPage } from "../pages/HumanResources/Dashboard Childs/leavespage.jsx"
+import { HRSalariesPage } from "../pages/HumanResources/Dashboard Childs/salariespage.jsx"
+import { HRNoticesPage } from "../pages/HumanResources/Dashboard Childs/noticespage.jsx"
 import { Navigate } from "react-router-dom"
 export const HRRoutes = [
     {
@@ -42,6 +44,14 @@ export const HRRoutes = [
             {
                 path: "/HR/dashboard/leaves",
                 element: <HRLandLeavesPage />
+            },
+            {
+                path: "/HR/dashboard/salaries",
+                element: <HRSalariesPage />
+            },
+            {
+                path: "/HR/dashboard/notices",
+                element: <HRNoticesPage />
             }
         ]
     },

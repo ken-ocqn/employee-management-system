@@ -5,12 +5,15 @@ import { Notice } from "../models/Notice.model.js"
 
 export const HandleCreateNotice = async (req, res) => {
     try {
-        const { title, content, audience, departmentID, employeeID, HRID } = req.body
+        const { title, content, audience, department, employee } = req.body
+        const HRID = req.HRid
+        const departmentID = department
+        const employeeID = employee
 
         if (audience === "Department-Specific") {
 
             if (!title || !content || !audience || !departmentID || !HRID) {
-                return res.status(404).json({ success: false, message: "All fields must be provided" })
+                return res.status(400).json({ success: false, message: "All fields must be provided" })
             }
 
             const department = await Department.findById(departmentID)
@@ -48,7 +51,7 @@ export const HandleCreateNotice = async (req, res) => {
 
         if (audience === "Employee-Specific") {
             if (!title || !content || !audience || !employeeID || !HRID) {
-                return res.status(404).json({ success: false, message: "All fields must be provided" })
+                return res.status(400).json({ success: false, message: "All fields must be provided" })
             }
 
             const employee = await Employee.findById(employeeID)
@@ -135,14 +138,22 @@ export const HandleNotice = async (req, res) => {
 export const HandleUpdateNotice = async (req, res) => {
     try {
 
-        const { noticeID, UpdatedData } = req.body
+        const { noticeID, title, content, audience, employee, department } = req.body
+        const UpdatedData = {
+            title,
+            content,
+            audience,
+            employee: audience === "Employee-Specific" ? employee : undefined,
+            department: audience === "Department-Specific" ? department : undefined
+        }
+
         const notice = await Notice.findByIdAndUpdate(noticeID, UpdatedData, { new: true })
 
         if (!notice) {
             return res.status(404).json({ success: false, message: "Notice not found" })
         }
 
-        return res.status(200).json({ success: true, message: "Salary record updated successfully", data: notice })
+        return res.status(200).json({ success: true, message: "Notice record updated successfully", data: notice })
 
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })

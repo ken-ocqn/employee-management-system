@@ -177,7 +177,6 @@ export const HREmployeesPageAsyncReducer = (builder, thunk) => {
             state.error.status = false;
             state.error.message = null
             state.error.content = null;
-            state.data = action.payload.data;
             state.success = action.payload.success;
             state.fetchData = true
         }

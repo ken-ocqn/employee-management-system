@@ -22,6 +22,8 @@ import { FormSubmitToast } from "./Toasts.jsx"
 import { Loading } from "../loading.jsx"
 import { HandleDeleteHREmployees, HandleUpdateHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
 import { HandlePostHRDepartments, HandlePatchHRDepartments, HandleDeleteHRDepartments } from "../../../redux/Thunks/HRDepartmentPageThunk.js"
+import { HandleCreateSalary, HandleUpdateSalary, HandleDeleteSalary } from "../../../redux/Thunks/SalaryThunk.js"
+import { HandleCreateNotice, HandleUpdateNotice, HandleDeleteNotice } from "../../../redux/Thunks/NoticeThunk.js"
 import { useToast } from "../../../hooks/use-toast.js"
 import {
     Command,
@@ -372,7 +374,7 @@ export const AddEmployeesDialogBox = () => {
 export const EmployeeDetailsDialogBox = ({ EmployeeID }) => {
     const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
     const FetchEmployeeData = (EmID) => {
-        const employee = HREmployeesState.data.find((item) => item._id === EmID)
+        const employee = HREmployeesState.data?.find((item) => item._id === EmID)
         return employee
     }
     const employeeData = FetchEmployeeData(EmployeeID)
@@ -617,6 +619,211 @@ export const CreateDepartmentDialogBox = () => {
                                     </DialogClose>
                             }
                         </div>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export const AddNoticeDialogBox = () => {
+    const dispatch = useDispatch()
+    const { toast } = useToast()
+    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const HRDepartmentState = useSelector((state) => state.HRDepartmentPageReducer)
+    const [formdata, setformdata] = useState({
+        title: "",
+        content: "",
+        audience: "Employee-Specific",
+        employee: "",
+        department: ""
+    })
+
+    const handleformchange = (event) => {
+        CommonStateHandler(formdata, setformdata, event)
+    }
+
+    const CreateNotice = () => {
+        const dataToSubmit = { ...formdata }
+        if (dataToSubmit.audience === "Employee-Specific") {
+            delete dataToSubmit.department
+        } else {
+            delete dataToSubmit.employee
+        }
+        dispatch(HandleCreateNotice(dataToSubmit)).then((res) => {
+            if (res.payload.success) {
+                toast({ title: "Success", description: "Notice issued successfully" })
+            } else {
+                toast({ variant: "destructive", title: "Error", description: res.payload.message })
+            }
+        })
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger className="bg-blue-800 border-2 border-blue-800 md:px-4 md:py-2 md:text-lg min-[250px]:px-2 min-[250px]:py-1 min-[250px]:text-sm text-white font-bold rounded-lg hover:bg-white hover:text-blue-800">Issue Notice</DialogTrigger>
+            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
+                <div className="flex flex-col gap-4">
+                    <h1 className="font-bold text-2xl">Issue New Notice</h1>
+                    <div className="grid gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Title</label>
+                            <input type="text" name="title" value={formdata.title} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" placeholder="Notice Title" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Content</label>
+                            <textarea name="content" value={formdata.content} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1 h-32" placeholder="Notice Content"></textarea>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Audience</label>
+                            <select name="audience" value={formdata.audience} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                <option value="Employee-Specific">Employee Specific</option>
+                                <option value="Department-Specific">Department Specific</option>
+                            </select>
+                        </div>
+                        {formdata.audience === "Employee-Specific" ? (
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Select Employee</label>
+                                <select name="employee" value={formdata.employee} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                    <option value="">Select Employee</option>
+                                    {HREmployeesState.data?.map((emp) => (
+                                        <option key={emp._id} value={emp._id}>{emp.firstname} {emp.lastname}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Select Department</label>
+                                <select name="department" value={formdata.department} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                    <option value="">Select Department</option>
+                                    {HRDepartmentState.data?.map((dept) => (
+                                        <option key={dept._id} value={dept._id}>{dept.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                    <DialogClose asChild>
+                        <Button className="bg-blue-800 text-white" onClick={CreateNotice} disabled={!formdata.title || !formdata.content || (formdata.audience === "Employee-Specific" ? !formdata.employee : !formdata.department)}>Issue Notice</Button>
+                    </DialogClose>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export const UpdateNoticeDialogBox = ({ noticeData }) => {
+    const dispatch = useDispatch()
+    const { toast } = useToast()
+    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const HRDepartmentState = useSelector((state) => state.HRDepartmentPageReducer)
+    const [formdata, setformdata] = useState({
+        noticeID: noticeData._id,
+        title: noticeData.title,
+        content: noticeData.content,
+        audience: noticeData.audience,
+        employee: noticeData.employee?._id || "",
+        department: noticeData.department?._id || ""
+    })
+
+    const handleformchange = (event) => {
+        CommonStateHandler(formdata, setformdata, event)
+    }
+
+    const UpdateNotice = () => {
+        const dataToSubmit = { ...formdata }
+        if (dataToSubmit.audience === "Employee-Specific") {
+            delete dataToSubmit.department
+        } else {
+            delete dataToSubmit.employee
+        }
+        dispatch(HandleUpdateNotice(dataToSubmit)).then((res) => {
+            if (res.payload.success) {
+                toast({ title: "Success", description: "Notice updated successfully" })
+            } else {
+                toast({ variant: "destructive", title: "Error", description: res.payload.message })
+            }
+        })
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger className="btn-sm text-blue-700 border-2 border-blue-800 px-2 py-1 rounded hover:bg-blue-800 hover:text-white">Edit</DialogTrigger>
+            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
+                <div className="flex flex-col gap-4">
+                    <h1 className="font-bold text-2xl">Update Notice</h1>
+                    <div className="grid gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Title</label>
+                            <input type="text" name="title" value={formdata.title} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Content</label>
+                            <textarea name="content" value={formdata.content} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1 h-32"></textarea>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Audience</label>
+                            <select name="audience" value={formdata.audience} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                <option value="Employee-Specific">Employee Specific</option>
+                                <option value="Department-Specific">Department Specific</option>
+                            </select>
+                        </div>
+                        {formdata.audience === "Employee-Specific" ? (
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Select Employee</label>
+                                <select name="employee" value={formdata.employee} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                    <option value="">Select Employee</option>
+                                    {HREmployeesState.data?.map((emp) => (
+                                        <option key={emp._id} value={emp._id}>{emp.firstname} {emp.lastname}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Select Department</label>
+                                <select name="department" value={formdata.department} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                    <option value="">Select Department</option>
+                                    {HRDepartmentState.data?.map((dept) => (
+                                        <option key={dept._id} value={dept._id}>{dept.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                    <DialogClose asChild>
+                        <Button className="bg-blue-800 text-white" onClick={UpdateNotice}>Update Notice</Button>
+                    </DialogClose>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export const DeleteNoticeDialogBox = ({ noticeID }) => {
+    const dispatch = useDispatch()
+    const { toast } = useToast()
+    const DeleteNotice = () => {
+        dispatch(HandleDeleteNotice(noticeID)).then((res) => {
+            if (res.payload.success) {
+                toast({ title: "Success", description: "Notice deleted successfully" })
+            } else {
+                toast({ variant: "destructive", title: "Error", description: res.payload.message })
+            }
+        })
+    }
+    return (
+        <Dialog>
+            <DialogTrigger className="btn-sm text-red-700 border-2 border-red-800 px-2 py-1 rounded hover:bg-red-800 hover:text-white">Delete</DialogTrigger>
+            <DialogContent className="max-w-[315px]">
+                <div className="flex flex-col items-center gap-4">
+                    <p className="font-bold">Are you sure you want to delete this notice?</p>
+                    <div className="flex gap-2">
+                        <DialogClose asChild>
+                            <Button className="bg-red-700 text-white" onClick={DeleteNotice}>Delete</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
                     </div>
                 </div>
             </DialogContent>
@@ -1081,5 +1288,188 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
                 </DialogContent>
             </Dialog>
         </div>
+    )
+}
+
+export const AddSalaryDialogBox = () => {
+    const dispatch = useDispatch()
+    const { toast } = useToast()
+    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const [formdata, setformdata] = useState({
+        employeeID: "",
+        basicpay: "",
+        bonusePT: 0,
+        deductionPT: 0,
+        duedate: "",
+        currency: "PHP"
+    })
+
+    const handleformchange = (event) => {
+        CommonStateHandler(formdata, setformdata, event)
+    }
+
+    const CreateSalary = () => {
+        dispatch(HandleCreateSalary(formdata)).then((res) => {
+            if (res.payload.success) {
+                toast({ title: "Success", description: "Salary record created successfully" })
+            } else {
+                toast({ variant: "destructive", title: "Error", description: res.payload.message })
+            }
+        })
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger className="bg-blue-800 border-2 border-blue-800 md:px-4 md:py-2 md:text-lg min-[250px]:px-2 min-[250px]:py-1 min-[250px]:text-sm text-white font-bold rounded-lg hover:bg-white hover:text-blue-800">Add Salary</DialogTrigger>
+            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
+                <div className="flex flex-col gap-4">
+                    <h1 className="font-bold text-2xl">Add Salary Record</h1>
+                    <div className="grid gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Select Employee</label>
+                            <select name="employeeID" value={formdata.employeeID} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                <option value="">Select Employee</option>
+                                {HREmployeesState.data?.map((emp) => (
+                                    <option key={emp._id} value={emp._id}>{emp.firstname} {emp.lastname}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Basic Pay</label>
+                                <input type="number" name="basicpay" value={formdata.basicpay} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Currency</label>
+                                <select name="currency" value={formdata.currency} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                    <option value="PHP">PHP</option>
+                                    <option value="USD">USD</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Bonuses (%)</label>
+                                <input type="number" name="bonusePT" value={formdata.bonusePT} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Deductions (%)</label>
+                                <input type="number" name="deductionPT" value={formdata.deductionPT} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Due Date</label>
+                            <input type="date" name="duedate" value={formdata.duedate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                        </div>
+                    </div>
+                    <DialogClose asChild>
+                        <Button className="bg-blue-800 text-white" onClick={CreateSalary}>Create Salary</Button>
+                    </DialogClose>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export const UpdateSalaryDialogBox = ({ salaryData }) => {
+    const dispatch = useDispatch()
+    const { toast } = useToast()
+    const [formdata, setformdata] = useState({
+        salaryID: salaryData._id,
+        basicpay: salaryData.basicpay,
+        bonusePT: (salaryData.bonuses / salaryData.basicpay) * 100,
+        deductionPT: (salaryData.deductions / salaryData.basicpay) * 100,
+        duedate: salaryData.duedate.split('T')[0],
+        currency: salaryData.currency,
+        status: salaryData.status
+    })
+
+    const handleformchange = (event) => {
+        CommonStateHandler(formdata, setformdata, event)
+    }
+
+    const UpdateSalary = () => {
+        dispatch(HandleUpdateSalary(formdata)).then((res) => {
+            if (res.payload.success) {
+                toast({ title: "Success", description: "Salary record updated successfully" })
+            } else {
+                toast({ variant: "destructive", title: "Error", description: res.payload.message })
+            }
+        })
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger className="btn-sm text-blue-700 border-2 border-blue-800 px-2 py-1 rounded hover:bg-blue-800 hover:text-white">Edit</DialogTrigger>
+            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
+                <div className="flex flex-col gap-4">
+                    <h1 className="font-bold text-2xl">Update Salary</h1>
+                    <div className="grid gap-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Basic Pay</label>
+                                <input type="number" name="basicpay" value={formdata.basicpay} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Status</label>
+                                <select name="status" value={formdata.status} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Bonuses (%)</label>
+                                <input type="number" name="bonusePT" value={formdata.bonusePT} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-bold">Deductions (%)</label>
+                                <input type="number" name="deductionPT" value={formdata.deductionPT} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Due Date</label>
+                            <input type="date" name="duedate" value={formdata.duedate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                        </div>
+                    </div>
+                    <DialogClose asChild>
+                        <Button className="bg-blue-800 text-white" onClick={UpdateSalary}>Update Salary</Button>
+                    </DialogClose>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export const DeleteSalaryDialogBox = ({ salaryID }) => {
+    const dispatch = useDispatch()
+    const { toast } = useToast()
+    const DeleteSalary = () => {
+        dispatch(HandleDeleteSalary(salaryID)).then((res) => {
+            if (res.payload.success) {
+                toast({ title: "Success", description: "Salary record deleted successfully" })
+            } else {
+                toast({ variant: "destructive", title: "Error", description: res.payload.message })
+            }
+        })
+    }
+    return (
+        <Dialog>
+            <DialogTrigger className="btn-sm text-red-700 border-2 border-red-800 px-2 py-1 rounded hover:bg-red-800 hover:text-white">Delete</DialogTrigger>
+            <DialogContent className="max-w-[315px]">
+                <div className="flex flex-col items-center gap-4">
+                    <p className="font-bold">Are you sure you want to delete this salary record?</p>
+                    <div className="flex gap-2">
+                        <DialogClose asChild>
+                            <Button className="bg-red-700 text-white" onClick={DeleteSalary}>Delete</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }

@@ -53,3 +53,19 @@ export const OrganizationEndPoints = {
     GETDETAILS: "/api/v1/organization/",
     UPDATEDEFAULTS: "/api/v1/organization/leave-credits"
 }
+
+export const SalaryEndPoints = {
+    CREATE: "/api/v1/salary/create-salary",
+    GETALL: "/api/v1/salary/all",
+    GETONE: (id) => `/api/v1/salary/${id}`,
+    UPDATE: "/api/v1/salary/update-salary",
+    DELETE: (id) => `/api/v1/salary/delete-salary/${id}`
+}
+
+export const NoticeEndPoints = {
+    CREATE: "/api/v1/notice/create-notice",
+    GETALL: "/api/v1/notice/all/",
+    GETONE: (id) => `/api/v1/notice/${id}`,
+    UPDATE: "/api/v1/notice/update-notice",
+    DELETE: (id) => `/api/v1/notice/delete-notice/${id}`
+}
