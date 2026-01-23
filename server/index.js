@@ -24,6 +24,7 @@ import cors from "cors"
 
 
 dotenv.config()
+ConnectDB()
 const app = express();
 app.use(bodyParser.json())
 app.use(cookieParser())
@@ -92,7 +93,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(process.env.PORT, async () => {
-  await ConnectDB()
   console.log(`Server running on http://localhost:${process.env.PORT}`)
 })
 
