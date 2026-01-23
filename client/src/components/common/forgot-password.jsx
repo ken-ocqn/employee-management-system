@@ -12,7 +12,7 @@ export const ForgotPassowrd = ({ handleforgotpasswordsubmit, handlesforgotpasswo
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm lg:mx-10">
                     <img
                         alt="Your Company"
-                        src="../../src/assets/forgotpassword.png"
+                        src="/assets/forgotpassword.png"
                         className="mx-auto h-auto w-auto"
                     />
                 </div>

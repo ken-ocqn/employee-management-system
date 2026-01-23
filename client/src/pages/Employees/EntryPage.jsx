@@ -93,7 +93,7 @@ export const EntryPage = () => {
                     <TabsContent value="employee" className="w-full">
                         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                             <SignIn
-                                image={"../../src/assets/Employee-Welcome.jpg"}
+                                image={"/assets/Employee-Welcome.jpg"}
                                 handlesigninform={handleEmployeeChange}
                                 handlesigninsubmit={handleEmployeeSubmit}
                                 targetedstate={EmployeeState}
@@ -106,7 +106,7 @@ export const EntryPage = () => {
                     <TabsContent value="hr" className="w-full">
                         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                             <SignIn
-                                image={"../../src/assets/Employee-Welcome.jpg"}
+                                image={"/assets/Employee-Welcome.jpg"}
                                 handlesigninform={handleHRChange}
                                 handlesigninsubmit={handleHRSubmit}
                                 targetedstate={HRState}

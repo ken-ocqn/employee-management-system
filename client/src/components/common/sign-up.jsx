@@ -13,7 +13,7 @@ export const SignUP = ({ handlesignupform, handlesubmitform, stateformdata, erro
             <div className="HR-form-content justify-center items-center min-[250px]:w-[90%] 2xl:w-[80%] grid grid-cols-1 min-[900px]:grid-cols-2 mx-auto">
 
                 <div className="form-img mx-auto">
-                    <img src="../../src/assets/Employee-Welcome.jpg" alt="Your Company" className=" min-[250px]:max-w-[15rem] min-[600px]:max-w-sm min-[900px]:max-w-sm 2xl:max-w-md" />
+                    <img src="/assets/Employee-Welcome.jpg" alt="Your Company" className=" min-[250px]:max-w-[15rem] min-[600px]:max-w-sm min-[900px]:max-w-sm 2xl:max-w-md" />
                 </div>
 
                 {/* <div className="form-content flex flex-col gap-6 sm:justify-center min-[250px]:items-center sm:items-center md:items-start md:justify-normal">
