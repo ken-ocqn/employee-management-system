@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { apiService } from "../apis/apiService";
+import { apiService } from "../apis/api-service";
 import { HREndPoints } from "../apis/APIsEndpoints";
 
 export const HandleGetHumanResources = createAsyncThunk("HandleGetHumanResources", async (HRData, { rejectWithValue }) => {
@@ -20,7 +20,7 @@ export const HandlePostHumanResources = createAsyncThunk("HandlePostHumanResourc
     try {
         const { apiroute, data, type } = HRData
         if (type == "resetpassword") {
-            const response = await apiService.post(`${HREndPoints.RESET_PASSWORD(apiroute)}`, data, { 
+            const response = await apiService.post(`${HREndPoints.RESET_PASSWORD(apiroute)}`, data, {
                 withCredentials: true
             })
             return response.data
@@ -29,7 +29,7 @@ export const HandlePostHumanResources = createAsyncThunk("HandlePostHumanResourc
             const response = await apiService.post(`${HREndPoints[apiroute]}`, data, {
                 withCredentials: true
             })
-            return response.data 
+            return response.data
         }
     } catch (error) {
         return rejectWithValue(error.response.data);

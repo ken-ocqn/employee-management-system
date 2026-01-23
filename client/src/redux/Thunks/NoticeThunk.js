@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { apiService } from "../apis/apiService";
+import { apiService } from "../apis/api-service";
 import { NoticeEndPoints } from "../apis/APIsEndpoints";
 
 export const HandleGetNotices = createAsyncThunk('HandleGetNotices', async (_, { rejectWithValue }) => {

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { apiService } from "../apis/apiService";
+import { apiService } from "../apis/api-service";
 import { LeaveEndPoints, OrganizationEndPoints } from "../apis/APIsEndpoints";
 
 export const HandleGetLeaves = createAsyncThunk('HandleGetLeaves', async (_, { rejectWithValue }) => {
