@@ -73,3 +73,5 @@ app.listen(process.env.PORT, async () => {
   await ConnectDB()
   console.log(`Server running on http://localhost:${process.env.PORT}`)
 })
+
+export default app;
