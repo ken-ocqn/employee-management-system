@@ -81,6 +81,16 @@ app.use("/api/v1/balance", BalanceRouter)
 
 app.use("/api/v1/organization", OrganizationRouter)
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+  });
+});
+
 app.listen(process.env.PORT, async () => {
   await ConnectDB()
   console.log(`Server running on http://localhost:${process.env.PORT}`)

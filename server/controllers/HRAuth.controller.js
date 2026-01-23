@@ -131,7 +131,8 @@ export const HandleHRLogin = async (req, res) => {
         return res.status(200).json({ success: true, message: "HR Login Successfull", type: "HRLogin" })
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: error, type: "HRLogin" })
+        console.error("Error in HandleHRLogin:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message, type: "HRLogin" })
     }
 }
 
