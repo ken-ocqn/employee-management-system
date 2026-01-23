@@ -29,9 +29,21 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://cpp-hris-app.vercel.app",
+  process.env.CLIENT_URL
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL, // Adjust this to match your front-end origin exactly
-  credentials: true, // This is optional and depends on whether you’re using cookies
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 // app.options('*', cors())
 
