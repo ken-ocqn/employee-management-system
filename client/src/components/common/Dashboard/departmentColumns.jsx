@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from "lucide-react"
-import { RemoveEmployeeFromDepartmentDialogBox } from "./dialogboxes.jsx"
+import { RemoveEmployeeFromDepartmentDialogBox, ViewNoticeDialogBox } from "./dialogboxes.jsx"
 
 export const getDepartmentEmployeesColumns = (departmentName, departmentId) => [
     {
@@ -87,9 +87,10 @@ export const getDepartmentNoticeColumns = () => [
         id: "actions",
         header: "View Notice",
         cell: ({ row }) => {
+            const notice = row.original
             return (
                 <div className="flex justify-center items-center gap-2">
-                    <Button variant="outline" size="sm" className="border-blue-500 text-blue-700">View</Button>
+                    <ViewNoticeDialogBox noticeData={notice} />
                 </div>
             )
         },

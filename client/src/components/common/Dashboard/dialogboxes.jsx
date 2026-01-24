@@ -1442,6 +1442,7 @@ export const UpdateSalaryDialogBox = ({ salaryData }) => {
     )
 }
 
+
 export const DeleteSalaryDialogBox = ({ salaryID }) => {
     const dispatch = useDispatch()
     const { toast } = useToast()
@@ -1468,6 +1469,69 @@ export const DeleteSalaryDialogBox = ({ salaryID }) => {
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
                     </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export const ViewNoticeDialogBox = ({ noticeData }) => {
+    return (
+        <Dialog>
+            <DialogTrigger className="btn-sm text-blue-700 border-2 border-blue-800 px-2 py-1 rounded hover:bg-blue-800 hover:text-white">View</DialogTrigger>
+            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
+                <DialogHeader>
+                    <DialogTitle className="font-bold text-2xl">Notice Details</DialogTitle>
+                    <DialogDescription>
+                        Full information regarding this notice.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-500 uppercase text-xs">Title</label>
+                        <p className="text-lg font-semibold">{noticeData?.title || "No Title"}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-500 uppercase text-xs">Content</label>
+                        <div className="border-2 border-gray-100 rounded px-2 py-2 bg-gray-50 min-h-[100px] whitespace-pre-wrap max-h-[300px] overflow-auto">
+                            {noticeData?.content || "No content provided."}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-500 uppercase text-xs">Audience</label>
+                            <p className="capitalize">
+                                {noticeData?.audience === 'Employee-Specific' ? 'Employee' : 'Department'}
+                            </p>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-500 uppercase text-xs">Target</label>
+                            <p>
+                                {noticeData?.audience === "Employee-Specific"
+                                    ? (noticeData.employee ? `${noticeData.employee.firstname} ${noticeData.employee.lastname}` : "N/A")
+                                    : (noticeData.department ? noticeData.department.name : "N/A")}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-500 uppercase text-xs">Created By</label>
+                            <p>
+                                {noticeData?.createdby ? `${noticeData.createdby.firstname} ${noticeData.createdby.lastname}` : "N/A"}
+                            </p>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-500 uppercase text-xs">Date Created</label>
+                            <p>
+                                {noticeData?.createdAt ? new Date(noticeData.createdAt).toLocaleDateString() : "Invalid Date"}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex justify-end">
+                    <DialogClose asChild>
+                        <Button variant="outline">Close</Button>
+                    </DialogClose>
                 </div>
             </DialogContent>
         </Dialog>

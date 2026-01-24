@@ -29,7 +29,16 @@ export const HandleCreateDepartment = async (req, res) => {
 
 export const HandleAllDepartments = async (req, res) => {
     try {
-        const departments = await Department.find({ organizationID: req.ORGID }).populate("employees notice HumanResources", "firstname lastname email contactnumber title audience createdby")
+        const departments = await Department.find({ organizationID: req.ORGID })
+            .populate("employees HumanResources", "firstname lastname email contactnumber")
+            .populate({
+                path: "notice",
+                populate: [
+                    { path: "employee", select: "firstname lastname" },
+                    { path: "department", select: "name" },
+                    { path: "createdby", select: "firstname lastname" }
+                ]
+            })
 
         return res.status(200).json({ success: true, message: "All departments retrieved successfully", data: departments, type: "AllDepartments" })
     } catch (error) {
