@@ -25,7 +25,8 @@ export const HandleEmplyoeeSignup = async (req, res) => {
         sss,
         philhealth,
         tin,
-        pagibig
+        pagibig,
+        employmentstatus
     } = req.body
     try {
 
@@ -67,6 +68,7 @@ export const HandleEmplyoeeSignup = async (req, res) => {
                 philhealth: philhealth,
                 tin: tin,
                 pagibig: pagibig,
+                employmentstatus: employmentstatus,
                 role: "Employee",
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000,
@@ -170,7 +172,7 @@ export const HandleEmplyoeeLogin = async (req, res) => {
         employee.lastlogin = new Date()
 
         await employee.save()
-        return res.status(200).json({ success: true, message: "Emplyoee Login Successfull" })
+        return res.status(200).json({ success: true, message: "Emplyoee Login Successfull", type: "EmployeeLogin" })
 
     } catch (error) {
         res.status(500).json({ success: false, message: "Internal Server Error", error: error })
@@ -182,21 +184,21 @@ export const HandleEmployeeCheck = async (req, res) => {
     try {
         const employee = await Employee.findOne({ _id: req.EMid, organizationID: req.ORGID })
         if (!employee) {
-            return res.status(404).json({ success: false, message: "Employee not found" })
+            return res.status(404).json({ success: false, message: "Employee not found", type: "EmployeeCheck" })
         }
-        return res.status(200).json({ success: true, message: "Employee Already Logged In" })
+        return res.status(200).json({ success: true, message: "Employee Already Logged In", type: "EmployeeCheck", data: employee })
     } catch (error) {
-        return res.status(500).json({ success: false, error: error, message: "internal error" })
+        return res.status(500).json({ success: false, error: error, message: "internal error", type: "EmployeeCheck" })
     }
 }
 
 export const HandleEmplyoeeLogout = async (req, res) => {
     try {
         res.clearCookie("EMtoken")
-        return res.status(200).json({ success: true, message: "Logged out successfully" })
+        return res.status(200).json({ success: true, message: "Logged out successfully", type: "EmployeeLogout" })
     } catch (error) {
         console.error(error)
-        return res.status(500).json({ success: false, message: "Internal server Error" })
+        return res.status(500).json({ success: false, message: "Internal server Error", type: "EmployeeLogout" })
     }
 }
 

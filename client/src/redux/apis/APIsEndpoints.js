@@ -3,7 +3,8 @@ export const APIsEndPoints = {
     CHECKELOGIN: "/api/auth/employee/check-login",
     FORGOT_PASSWORD: "/api/auth/employee/forgot-password",
     RESET_PASSWORD: (token) => `/api/auth/employee/reset-password/${token}`,
-    LOGOUT: "/api/auth/employee/logout"
+    LOGOUT: "/api/auth/employee/logout",
+    GET_PROFILE: "/api/v1/employee/by-employee"
 }
 
 export const HREndPoints = {
@@ -69,3 +70,19 @@ export const NoticeEndPoints = {
     UPDATE: "/api/v1/notice/update-notice",
     DELETE: (id) => `/api/v1/notice/delete-notice/${id}`
 }
+
+export const AttendanceEndPoints = {
+    GETALL: "/api/v1/attendance/",
+    GETONE: (id) => `/api/v1/attendance/${id}`,
+    UPDATE: "/api/v1/attendance/update-attendance",
+    DELETE: (id) => `/api/v1/attendance/delete-attendance/${id}`,
+    INITIALIZE: "/api/v1/attendance/initialize-attendance"
+}
+
+export const RequestEndPoints = {
+    GETALL: "/api/v1/request/all",
+    GETONE: (id) => `/api/v1/request/${id}`,
+    UPDATE_STATUS: "/api/v1/request/update-request-status",
+    DELETE: (id) => `/api/v1/request/delete-request/${id}`
+}
+

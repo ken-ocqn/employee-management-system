@@ -48,12 +48,28 @@ export const EntryPage = () => {
         dispatch(HandlePostHumanResources({ apiroute: "LOGIN", data: hrForm }))
     }
 
-    // Effects for Invalidation on Landing
+    // Check for existing session on land
     useEffect(() => {
-        // Invalidate all sessions and clear JWTs safely as per requirement
-        dispatch(HandlePostEmployees({ apiroute: "LOGOUT", data: {} }))
-        dispatch(HandlePostHumanResources({ apiroute: "LOGOUT", data: {} }))
+        if (!EmployeeState.isAuthenticated && !EmployeeState.error.status) {
+            dispatch(HandleGetEmployees({ apiroute: "CHECKELOGIN" }))
+        }
+        if (!HRState.isAuthenticated && !HRState.error.status) {
+            dispatch(HandleGetHumanResources({ apiroute: "CHECKLOGIN" }))
+        }
     }, [dispatch])
+
+    // Auto-redirection if already authenticated
+    useEffect(() => {
+        if (EmployeeState.isAuthenticated) {
+            navigate("/auth/employee/employee-dashboard")
+        }
+    }, [EmployeeState.isAuthenticated, navigate])
+
+    useEffect(() => {
+        if (HRState.isAuthenticated) {
+            navigate("/HR/dashboard")
+        }
+    }, [HRState.isAuthenticated, navigate])
 
     // Redirection Effects - only redirect after a fresh login attempt
     useEffect(() => {

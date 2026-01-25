@@ -4,7 +4,7 @@ import { Organization } from "../models/Organization.model.js"
 
 export const HandleAllEmployees = async (req, res) => {
     try {
-        const employees = await Employee.find({ organizationID: req.ORGID }).populate("department", "name").select("firstname lastname email contactnumber designation startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department attendance notice salary leaverequest generaterequest isverified leaveCredits")
+        const employees = await Employee.find({ organizationID: req.ORGID }).populate("department", "name").select("firstname lastname email contactnumber designation employmentstatus startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department attendance notice salary leaverequest generaterequest isverified leaveCredits")
         return res.status(200).json({ success: true, data: employees, type: "AllEmployees" })
     } catch (error) {
         return res.status(500).json({ success: false, error: error, message: "internal server error" })
@@ -23,7 +23,7 @@ export const HandleAllEmployeesIDS = async (req, res) => {
 export const HandleEmployeeByHR = async (req, res) => {
     try {
         const { employeeId } = req.params
-        const employee = await Employee.findOne({ _id: employeeId, organizationID: req.ORGID }).select("firstname lastname email contactnumber designation startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department attendance notice salary leaverequest generaterequest leaveCredits")
+        const employee = await Employee.findOne({ _id: employeeId, organizationID: req.ORGID }).select("firstname lastname email contactnumber designation employmentstatus startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department attendance notice salary leaverequest generaterequest leaveCredits")
 
         if (!employee) {
             return res.status(404).json({ success: false, message: "employee not found" })
@@ -38,16 +38,16 @@ export const HandleEmployeeByHR = async (req, res) => {
 
 export const HandleEmployeeByEmployee = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ _id: req.EMid, organizationID: req.ORGID }).select("firstname lastname email contactnumber designation startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department attendance notice salary leaverequest generaterequest leaveCredits")
+        const employee = await Employee.findOne({ _id: req.EMid, organizationID: req.ORGID }).select("firstname lastname email contactnumber designation employmentstatus startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department attendance notice salary leaverequest generaterequest leaveCredits")
 
         if (!employee) {
             return res.status(404).json({ success: false, message: "employee not found" })
         }
 
-        return res.json({ success: true, message: "Employee Data Fetched Successfully", data: employee })
+        return res.json({ success: true, message: "Employee Data Fetched Successfully", data: employee, type: "EmployeeProfile" })
 
     } catch (error) {
-        return res.json({ success: false, message: "Internal Server Error", error: error })
+        return res.json({ success: false, message: "Internal Server Error", error: error, type: "EmployeeProfile" })
     }
 }
 
@@ -61,7 +61,7 @@ export const HandleEmployeeUpdate = async (req, res) => {
             return res.status(404).json({ success: false, message: "employee not found" })
         }
 
-        const employee = await Employee.findByIdAndUpdate(employeeId, updatedEmployee, { new: true }).select("firstname lastname email contactnumber designation startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department leaveCredits")
+        const employee = await Employee.findByIdAndUpdate(employeeId, updatedEmployee, { new: true }).select("firstname lastname email contactnumber designation employmentstatus startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department leaveCredits")
         return res.status(200).json({ success: true, data: employee, type: "EmployeeUpdate" })
 
     } catch (error) {

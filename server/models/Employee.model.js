@@ -65,6 +65,11 @@ const EmployeeSchema = new Schema({
     regularizationdate: {
         type: Date
     },
+    employmentstatus: {
+        type: String,
+        enum: ["Probationary", "Regular", "Outsourced", "External"],
+        default: "Probationary"
+    },
     role: {
         type: String,
         enum: ["HR-Admin", "Employee"],

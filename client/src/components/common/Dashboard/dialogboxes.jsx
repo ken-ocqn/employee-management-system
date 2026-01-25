@@ -72,7 +72,8 @@ export const AddEmployeesDialogBox = () => {
         designation: "",
         startdate: "",
         evaluationdate: "",
-        regularizationdate: ""
+        regularizationdate: "",
+        employmentstatus: "Probationary"
     })
 
     const [errors, setErrors] = useState({})
@@ -142,6 +143,11 @@ export const AddEmployeesDialogBox = () => {
             case 'startdate':
                 if (value && !validateFutureDate(value)) {
                     error = 'Cannot be in the future';
+                }
+                break;
+            case 'employmentstatus':
+                if (!value) {
+                    error = 'Please select an employment status';
                 }
                 break;
         }
@@ -319,6 +325,21 @@ export const AddEmployeesDialogBox = () => {
                                             <input type="text" name="designation" value={formdata.designation} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Employment Status</label>
+                                            <select 
+                                                name="employmentstatus" 
+                                                value={formdata.employmentstatus} 
+                                                onChange={handleformchange} 
+                                                className={`border-2 rounded px-2 py-1 ${errors.employmentstatus ? 'border-red-500' : 'border-gray-700'}`}
+                                            >
+                                                <option value="Probationary">Probationary</option>
+                                                <option value="Regular">Regular</option>
+                                                <option value="Outsourced">Outsourced</option>
+                                                <option value="External">External</option>
+                                            </select>
+                                            {errors.employmentstatus && <span className="text-red-500 text-xs mt-1">{errors.employmentstatus}</span>}
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">Start Date</label>
                                             <input type="date" name="startdate" value={formdata.startdate} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
                                         </div>
@@ -447,6 +468,10 @@ export const EmployeeDetailsDialogBox = ({ EmployeeID }) => {
                                         <div className="label-value-pair flex flex-col gap-1">
                                             <label className="font-bold text-sm text-gray-600">Designation</label>
                                             <p className="text-base">{employeeData.designation || "N/A"}</p>
+                                        </div>
+                                        <div className="label-value-pair flex flex-col gap-1">
+                                            <label className="font-bold text-sm text-gray-600">Employment Status</label>
+                                            <p className="text-base">{employeeData.employmentstatus || "Probationary"}</p>
                                         </div>
                                         <div className="label-value-pair flex flex-col gap-1">
                                             <label className="font-bold text-sm text-gray-600">Start Date</label>
@@ -961,7 +986,8 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
         designation: "",
         startdate: "",
         evaluationdate: "",
-        regularizationdate: ""
+        regularizationdate: "",
+        employmentstatus: "Probationary"
     })
 
     const [errors, setErrors] = useState({})
@@ -1061,6 +1087,7 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
                 startdate: employee.startdate ? employee.startdate.split('T')[0] : "",
                 evaluationdate: employee.evaluationdate ? employee.evaluationdate.split('T')[0] : "",
                 regularizationdate: employee.regularizationdate ? employee.regularizationdate.split('T')[0] : "",
+                employmentstatus: employee.employmentstatus || "Probationary",
             })
         }
     }, [EmployeeID, HREmployeesState.data])
@@ -1233,6 +1260,21 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">Designation</label>
                                             <input type="text" name="designation" value={formdata.designation} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
+                                        </div>
+                                        <div className="label-input-field flex flex-col gap-1">
+                                            <label className="font-bold">Employment Status</label>
+                                            <select 
+                                                name="employmentstatus" 
+                                                value={formdata.employmentstatus} 
+                                                onChange={handleformchange} 
+                                                className={`border-2 rounded px-2 py-1 ${errors.employmentstatus ? 'border-red-500' : 'border-gray-700'}`}
+                                            >
+                                                <option value="Probationary">Probationary</option>
+                                                <option value="Regular">Regular</option>
+                                                <option value="Outsourced">Outsourced</option>
+                                                <option value="External">External</option>
+                                            </select>
+                                            {errors.employmentstatus && <span className="text-red-500 text-xs mt-1">{errors.employmentstatus}</span>}
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">Start Date</label>

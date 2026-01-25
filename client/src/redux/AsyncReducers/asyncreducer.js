@@ -8,12 +8,19 @@ export const AsyncReducer = (builder, thunk) => {
             state.isLoading = false;
             state.error.status = false;
             state.data = action.payload;
-            if (action.payload.resetpassword) {
-                state.isAuthenticated = false;
-                state.isResetPasswords = action.payload.success
-            }
-            else {
+
+            // Handle specific authentication types to set isAuthenticated correctly
+            if (action.payload.type === "EmployeeLogin" || action.payload.type === "EmployeeCheck" || action.payload.type === "EmployeeProfile") {
                 state.isAuthenticated = action.payload.success;
+                state.data = action.payload.data || action.payload;
+            } else if (action.payload.type === "EmployeeLogout") {
+                state.isAuthenticated = false;
+                state.data = null;
+            } else if (action.payload.resetpassword) {
+                state.isAuthenticated = false;
+                state.isResetPasswords = action.payload.success;
+            } else {
+                state.data = action.payload;
             }
         })
         .addCase(thunk.rejected, (state, action) => {
