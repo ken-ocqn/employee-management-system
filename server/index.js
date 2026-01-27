@@ -19,12 +19,14 @@ import CorporateCalendarRouter from './routes/CorporateCalendar.route.js'
 import BalanceRouter from './routes/Balance.route.js'
 import OrganizationRouter from './routes/Organization.route.js'
 import { ConnectDB } from './config/connectDB.js';
+import { syncOrganizationDefaults } from './scripts/syncOrganizationDefaults.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors"
 
 
 dotenv.config()
-ConnectDB()
+await ConnectDB()
+await syncOrganizationDefaults()
 const app = express();
 app.use(bodyParser.json())
 app.use(cookieParser())

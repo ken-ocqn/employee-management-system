@@ -5,14 +5,14 @@ import { HandleGetEmployees } from "../redux/Thunks/EmployeeThunk"
 import { Loading } from "../components/common/loading"
 
 export const ProtectedRoutes = ({ children }) => {
-    const { isAuthenticated, isLoading, error } = useSelector((state) => state.employeereducer)
+    const { isAuthenticated, isLoading, error, wasLoggedOut } = useSelector((state) => state.employeereducer)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (!isAuthenticated && !error.status) {
+        if (!isAuthenticated && !error.status && !wasLoggedOut) {
             dispatch(HandleGetEmployees({ apiroute: "CHECKELOGIN" }))
         }
-    }, [isAuthenticated, dispatch, error.status])
+    }, [isAuthenticated, dispatch, error.status, wasLoggedOut])
 
     // Only show loading if we are NOT currently authenticated and we ARE loading
     // This prevents the dashboard from unmounting when it fetches its own data after mount
@@ -21,6 +21,6 @@ export const ProtectedRoutes = ({ children }) => {
     }
 
     return (
-        isAuthenticated ? children : (error.status ? <Navigate to="/" /> : null)
+        isAuthenticated ? children : (error.status || wasLoggedOut ? <Navigate to="/" /> : null)
     )
 }

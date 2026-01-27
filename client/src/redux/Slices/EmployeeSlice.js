@@ -10,6 +10,7 @@ const EmployeeSlice = createSlice({
         isAuthenticated: false,
         isAuthourized: false,
         isResetPasswords: false,
+        wasLoggedOut: false,
         error: {
             status: false,
             message: null,

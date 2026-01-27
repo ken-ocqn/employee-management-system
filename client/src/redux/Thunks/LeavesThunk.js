@@ -2,9 +2,10 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { apiService } from "../apis/api-service";
 import { LeaveEndPoints, OrganizationEndPoints } from "../apis/APIsEndpoints";
 
-export const HandleGetLeaves = createAsyncThunk('HandleGetLeaves', async (_, { rejectWithValue }) => {
+export const HandleGetLeaves = createAsyncThunk('HandleGetLeaves', async (args = { apiroute: "GETALL" }, { rejectWithValue }) => {
     try {
-        const response = await apiService.get(LeaveEndPoints.GETALL, {
+        const { apiroute } = args;
+        const response = await apiService.get(LeaveEndPoints[apiroute], {
             withCredentials: true
         });
         return response.data;

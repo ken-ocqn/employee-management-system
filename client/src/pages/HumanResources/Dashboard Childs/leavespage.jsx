@@ -9,12 +9,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "../../../hooks/use-toast.js"
+import { EditCreditsModal } from "../../../components/HR/EditCreditsModal.jsx"
+import { HandleGetHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
 
 export const HRLandLeavesPage = () => {
     const dispatch = useDispatch()
     const { toast } = useToast()
-    const { allLeaves, orgDetails, isLoading, isActionLoading } = useSelector((state) => state.leavesreducer)
+    const { allLeaves, orgDetails, isLoading } = useSelector((state) => state.leavesreducer)
     const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const { isActionLoading } = useSelector((state) => state.leavesreducer)
 
     const [defaults, setDefaults] = useState({
         sickLeave: 0,
@@ -24,9 +27,13 @@ export const HRLandLeavesPage = () => {
         paternityLeave: 0
     })
 
+    const [isEditCreditsOpen, setIsEditCreditsOpen] = useState(false)
+    const [selectedEmployee, setSelectedEmployee] = useState(null)
+
     useEffect(() => {
-        dispatch(HandleGetLeaves())
+        dispatch(HandleGetLeaves({ apiroute: "GETALL" }))
         dispatch(HandleGetOrgDetails())
+        dispatch(HandleGetHREmployees({ apiroute: "GETALL" }))
     }, [dispatch])
 
     useEffect(() => {
@@ -42,6 +49,17 @@ export const HRLandLeavesPage = () => {
                     toast({ title: "Success", description: "Default leave credits updated." })
                 }
             })
+    }
+
+    const handleEditCredits = (emp) => {
+        setSelectedEmployee(emp)
+        setIsEditCreditsOpen(true)
+    }
+
+    const refreshEmployees = () => {
+        // Silent refresh: just call the thunk. 
+        // Component already handles data updates via Redux.
+        dispatch(HandleGetHREmployees({ apiroute: "GETALL" }))
     }
 
     if (isLoading && !allLeaves.length) return <Loading />
@@ -88,17 +106,23 @@ export const HRLandLeavesPage = () => {
                                             <th className="px-4 py-2">Emergency</th>
                                             <th className="px-4 py-2">Maternity</th>
                                             <th className="px-4 py-2">Paternity</th>
+                                            <th className="px-4 py-2 text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {HREmployeesState.data?.map((emp) => (
-                                            <tr key={emp._id} className="border-b">
+                                            <tr key={emp._id} className="border-b hover:bg-neutral-50 transition-colors">
                                                 <td className="px-4 py-2 font-medium">{`${emp.firstname} ${emp.lastname}`}</td>
                                                 <td className="px-4 py-2">{emp.leaveCredits?.sickLeave}</td>
                                                 <td className="px-4 py-2">{emp.leaveCredits?.vacationLeave}</td>
                                                 <td className="px-4 py-2">{emp.leaveCredits?.emergencyLeave}</td>
                                                 <td className="px-4 py-2">{emp.leaveCredits?.maternityLeave}</td>
                                                 <td className="px-4 py-2">{emp.leaveCredits?.paternityLeave}</td>
+                                                <td className="px-4 py-2 text-center">
+                                                    <Button variant="outline" size="sm" onClick={() => handleEditCredits(emp)}>
+                                                        Edit
+                                                    </Button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -134,6 +158,13 @@ export const HRLandLeavesPage = () => {
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            <EditCreditsModal
+                isOpen={isEditCreditsOpen}
+                onClose={() => setIsEditCreditsOpen(false)}
+                employee={selectedEmployee}
+                onUpdate={refreshEmployees}
+            />
         </div>
     )
 }

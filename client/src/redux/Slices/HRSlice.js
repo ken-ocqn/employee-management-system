@@ -11,10 +11,11 @@ const HRSlice = createSlice({
         isSignUp: false,
         isAuthourized: false,
         isVerified: false,
-        isVerifiedEmailAvailable : false, 
+        isVerifiedEmailAvailable: false,
         isResetPassword: false,
+        wasLoggedOut: false,
         error: {
-            status: false,  
+            status: false,
             message: null,
             content: null
         }

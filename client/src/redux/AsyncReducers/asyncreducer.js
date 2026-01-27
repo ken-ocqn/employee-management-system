@@ -12,9 +12,11 @@ export const AsyncReducer = (builder, thunk) => {
             // Handle specific authentication types to set isAuthenticated correctly
             if (action.payload.type === "EmployeeLogin" || action.payload.type === "EmployeeCheck" || action.payload.type === "EmployeeProfile") {
                 state.isAuthenticated = action.payload.success;
+                state.wasLoggedOut = false;
                 state.data = action.payload.data || action.payload;
             } else if (action.payload.type === "EmployeeLogout") {
                 state.isAuthenticated = false;
+                state.wasLoggedOut = true;
                 state.data = null;
             } else if (action.payload.resetpassword) {
                 state.isAuthenticated = false;
@@ -60,6 +62,7 @@ export const HRAsyncReducer = (builder, thunk) => {
                 state.isLoading = false;
                 state.isAuthenticated = true
                 state.isAuthourized = true
+                state.wasLoggedOut = false;
                 state.error.status = false;
                 state.data = action.payload;
             }
@@ -105,6 +108,7 @@ export const HRAsyncReducer = (builder, thunk) => {
             }
             if (action.payload.type == "HRLogout") {
                 state.isAuthenticated = false;
+                state.wasLoggedOut = true;
                 state.data = null;
                 state.isLoading = false;
                 state.error.status = false;

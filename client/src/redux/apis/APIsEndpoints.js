@@ -43,8 +43,9 @@ export const EmployeesIDsEndPoints = {
 }
 
 export const LeaveEndPoints = {
-    CREATE: "/api/v1/leave/apply",
-    GETALL: "/api/v1/leave/",
+    CREATE: "/api/v1/leave/create-leave",
+    GETALL: "/api/v1/leave/all",
+    GET_MY_LEAVES: "/api/v1/leave/my-leaves",
     GETONE: (id) => `/api/v1/leave/${id}`,
     UPDATEBYHR: (id) => `/api/v1/leave/hr/update/${id}`,
     DELETE: (id) => `/api/v1/leave/delete/${id}`

@@ -34,9 +34,9 @@ const OrganizationSchema = new Schema({
         unique: true
     },
     defaultLeaveCredits: {
-        sickLeave: { type: Number, default: 15 },
-        vacationLeave: { type: Number, default: 15 },
-        emergencyLeave: { type: Number, default: 5 },
+        sickLeave: { type: Number, default: 1.25 },
+        vacationLeave: { type: Number, default: 1.25 },
+        emergencyLeave: { type: Number, default: 2 },
         maternityLeave: { type: Number, default: 105 },
         paternityLeave: { type: Number, default: 7 }
     }

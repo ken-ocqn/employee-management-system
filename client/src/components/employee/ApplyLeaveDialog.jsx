@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { HandleCreateLeave, HandleGetLeaves } from "../../redux/Thunks/LeavesThunk.js"
 import { useToast } from "../../hooks/use-toast.js"
 
-export const ApplyLeaveDialog = ({ employeeCredits, onApplySuccess }) => {
+export const ApplyLeaveDialog = ({ employeeCredits, employeeId, onApplySuccess }) => {
     const dispatch = useDispatch()
     const { toast } = useToast()
     const { isActionLoading } = useSelector((state) => state.leavesreducer)
@@ -23,6 +23,14 @@ export const ApplyLeaveDialog = ({ employeeCredits, onApplySuccess }) => {
 
     const leaveTypes = ["Sick", "Vacation", "Emergency", "Maternity", "Paternity", "Unpaid"]
 
+    const calculateDays = (start, end) => {
+        const startDate = new Date(start)
+        const endDate = new Date(end)
+        const diffTime = Math.abs(endDate - startDate)
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+        return diffDays
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -30,12 +38,28 @@ export const ApplyLeaveDialog = ({ employeeCredits, onApplySuccess }) => {
             return toast({ variant: "destructive", title: "Wait!", description: "All fields are required." })
         }
 
-        const res = await dispatch(HandleCreateLeave(formdata))
+        const requestedDays = calculateDays(formdata.startdate, formdata.enddate)
+        const creditKey = formdata.leaveType.toLowerCase() + "Leave"
+        const availableCredits = employeeCredits?.[creditKey] || 0
+
+        if (formdata.leaveType !== "Unpaid" && requestedDays > availableCredits) {
+            return toast({
+                variant: "destructive",
+                title: "Insufficient Credits",
+                description: `You are requesting ${requestedDays} days, but only have ${availableCredits} days left.`
+            })
+        }
+
+        const res = await dispatch(HandleCreateLeave({
+            ...formdata,
+            employeeID: employeeId,
+            title: `${formdata.leaveType} Leave Application`
+        }))
         if (!res.error) {
             toast({ title: "Success", description: "Leave application submitted." })
             setOpen(false)
             setFormdata({ leaveType: "", startdate: "", enddate: "", reason: "" })
-            dispatch(HandleGetLeaves())
+            dispatch(HandleGetLeaves({ apiroute: "GET_MY_LEAVES" }))
             if (onApplySuccess) onApplySuccess()
         } else {
             toast({ variant: "destructive", title: "Error", description: res.payload?.message || "Failed to submit." })

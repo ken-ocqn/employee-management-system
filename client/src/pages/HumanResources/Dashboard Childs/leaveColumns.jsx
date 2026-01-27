@@ -50,7 +50,7 @@ export const leaveColumns = [
 
             const handleAction = (status) => {
                 dispatch(HandleUpdateLeaveStatus({ id: leave._id, status }))
-                    .then(() => dispatch(HandleGetLeaves()))
+                    .then(() => dispatch(HandleGetLeaves({ apiroute: "GETALL" })))
             }
 
             return (

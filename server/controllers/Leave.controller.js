@@ -118,7 +118,9 @@ export const HandleUpdateLeaveByEmployee = async (req, res) => {
 
 export const HandleUpdateLeavebyHR = async (req, res) => {
     try {
-        const { leaveID, status, HRID } = req.body
+        const { leaveID } = req.params
+        const { status } = req.body
+        const HRID = req.HRid
 
         if (!leaveID || !status || !HRID) {
             return res.status(400).json({ success: false, message: "All fields are required" })
@@ -156,6 +158,15 @@ export const HandleUpdateLeavebyHR = async (req, res) => {
         }
 
         return res.status(200).json({ success: true, message: "Leave record updated successfully", data: leave })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal server error" })
+    }
+}
+
+export const HandleGetLeavesByEmployee = async (req, res) => {
+    try {
+        const leaves = await Leave.find({ employee: req.EMid, organizationID: req.ORGID }).populate("employee approvedby", "firstname lastname department")
+        return res.status(200).json({ success: true, message: "Employee leave records retrieved successfully", data: leaves })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" })
     }

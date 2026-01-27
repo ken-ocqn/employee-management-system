@@ -15,6 +15,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
+import { Badge } from "@/components/ui/badge"
 export const SalaryChart = ({ balancedata }) => {
     const chartData = []
     if (balancedata) {
@@ -46,74 +47,89 @@ export const SalaryChart = ({ balancedata }) => {
         trendingUp += Math.round((difference * 100) / chartData[chartData.length - 2]["AvailableAmount"])
     }
     return (
-        <div className="salary-container flex flex-col min-[250px]:gap-3 sm:gap-1 h-auto">
-            <div className="heading px-2 my-2 min-[250px]:px-3">
-                <h1 className="min-[250px]:text-xl xl:text-3xl font-bold min-[250px]:text-center sm:text-start">Balance Chart</h1>
-            </div>
-            <Card className="mx-2">
-                <CardHeader>
-                    <CardTitle className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">Available Salary Amount : {chartData.length > 0 ? chartData[chartData.length - 1]["AvailableAmount"] : 0}</CardTitle>
-                    <CardDescription className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">
-                        Salaries Chart
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartContainer config={chartConfig}>
-                        <AreaChart
-                            accessibilityLayer
-                            data={chartData}
-                            margin={{
-                                left: 12,
-                                right: 12,
-                            }}
-                        >
-                            <CartesianGrid vertical={false} />
-                            <XAxis
-                                dataKey="month"
-                                tickLine={false}
-                                axisLine={false}
-                                tickMargin={8}
-                                tickFormatter={(value) => value.slice(0, 3)}
-                            />
-                            <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent indicator="line" className="p-2" />}
-                                className="p-[2px] flex gap-1 items-center min-[250px]:text-xs sm:text-xs"
-                            />
-                            <Area
-                                dataKey="SalriesPaid"
-                                type="natural"
-                                fill="var(--color-mobile)"
-                                fillOpacity={0.4}
-                                stroke="var(--color-mobile)"
-                                stackId="a"
-                            />
-                            <Area
-                                dataKey="AvailableAmount"
-                                type="natural"
-                                fill="var(--color-desktop)"
-                                fillOpacity={0.4}
-                                stroke="var(--color-desktop)"
-                                stackId="a"
-                            />
-                            <ChartLegend content={<ChartLegendContent />} />
-                        </AreaChart>
-                    </ChartContainer>
-                </CardContent>
-                <CardFooter>
-                    <div className="flex w-full items-start gap-2 text-sm">
-                        <div className="grid gap-2">
-                            <div className="flex items-center gap-2 font-medium leading-none">
-                                Trending up by {trendingUp} % this month
-                                <TrendingUp className="h-4 w-4" />
-                            </div>
-                            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                                {chartData.length > 0 ? `${chartData[0]["month"]} 2024 - ${chartData[chartData.length - 1]["month"]} 2024` : null}
-                            </div>
+        <Card className="border-none shadow-xl shadow-slate-200/50 bg-white rounded-3xl overflow-hidden group">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 px-8 py-6">
+                <div className="flex flex-col gap-1">
+                    <CardTitle className="text-lg font-bold flex items-center gap-3 text-slate-800">
+                        <div className="p-2 bg-emerald-50 rounded-xl">
+                            <TrendingUp className="w-5 h-5 text-emerald-600" />
                         </div>
+                        Balance Overview
+                    </CardTitle>
+                    <CardDescription className="text-xs font-medium">Available Salary: <span className="text-slate-900 font-bold">${chartData.length > 0 ? chartData[chartData.length - 1]["AvailableAmount"] : 0}</span></CardDescription>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider text-slate-400 py-1.5 px-3 rounded-full border-slate-200">
+                    Expense Analytics
+                </Badge>
+            </CardHeader>
+            <CardContent className="p-8">
+                <ChartContainer config={chartConfig} className="max-h-[300px] w-full">
+                    <AreaChart
+                        accessibilityLayer
+                        data={chartData}
+                        margin={{
+                            left: 0,
+                            right: 0,
+                            top: 10,
+                            bottom: 0
+                        }}
+                    >
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                        <XAxis
+                            dataKey="month"
+                            tickLine={false}
+                            axisLine={false}
+                            tickMargin={12}
+                            tickFormatter={(value) => value.slice(0, 3)}
+                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                        />
+                        <ChartTooltip
+                            cursor={{ stroke: '#e2e8f0', strokeWidth: 2 }}
+                            content={<ChartTooltipContent indicator="dot" className="bg-white/90 backdrop-blur-md border-slate-200 shadow-xl rounded-xl p-3" />}
+                        />
+                        <Area
+                            dataKey="SalriesPaid"
+                            type="natural"
+                            fill="url(#colorSalaries)"
+                            fillOpacity={1}
+                            stroke="#6366f1"
+                            strokeWidth={3}
+                            stackId="a"
+                        />
+                        <Area
+                            dataKey="AvailableAmount"
+                            type="natural"
+                            fill="url(#colorAvailable)"
+                            fillOpacity={1}
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            stackId="a"
+                        />
+                        <defs>
+                            <linearGradient id="colorSalaries" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="colorAvailable" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <ChartLegend content={<ChartLegendContent />} className="mt-6" />
+                    </AreaChart>
+                </ChartContainer>
+            </CardContent>
+            <CardFooter className="px-8 py-6 bg-slate-50/50 border-t border-slate-50">
+                <div className="flex w-full items-center justify-between text-sm">
+                    <div className="flex items-center gap-2 font-bold text-slate-700">
+                        <TrendingUp className={`h-4 w-4 ${trendingUp >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} />
+                        Trending {trendingUp >= 0 ? 'up' : 'down'} by {Math.abs(trendingUp)}% this month
                     </div>
-                </CardFooter>
-            </Card>
-        </div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Data range: {chartData.length > 0 ? `${chartData[0]["month"]} - ${chartData[chartData.length - 1]["month"]}` : 'N/A'}
+                    </div>
+                </div>
+            </CardFooter>
+        </Card>
     )
 }

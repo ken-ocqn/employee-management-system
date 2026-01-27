@@ -11,7 +11,7 @@ export const HRProtectedRoutes = ({ children }) => {
     const HRState = useSelector((state) => state.HRReducer)
 
     useEffect(() => {
-        if (!HRState.isAuthenticated && !HRState.isAuthourized && !HRState.isVerified && !HRState.error.content) {
+        if (!HRState.isAuthenticated && !HRState.isAuthourized && !HRState.isVerified && !HRState.error.content && !HRState.wasLoggedOut) {
             dispatch(HandleGetHumanResources({ apiroute: "CHECKLOGIN" }))
             dispatch(HandleGetHumanResources({ apiroute: "CHECK_VERIFY_EMAIL" }))
         }
@@ -29,6 +29,10 @@ export const HRProtectedRoutes = ({ children }) => {
         return (
             <Loading />
         )
+    }
+
+    if (HRState.wasLoggedOut) {
+        return <Navigate to="/" />
     }
 
     return (

@@ -62,6 +62,7 @@ export const HandleEmployeeUpdate = async (req, res) => {
         }
 
         const employee = await Employee.findByIdAndUpdate(employeeId, updatedEmployee, { new: true }).select("firstname lastname email contactnumber designation employmentstatus startdate evaluationdate regularizationdate sss philhealth tin pagibig permanentaddress presentaddress birthdate birthplace department leaveCredits")
+        console.log("Employee updated successfullly:", employee.firstname, employee.lastname)
         return res.status(200).json({ success: true, data: employee, type: "EmployeeUpdate" })
 
     } catch (error) {
