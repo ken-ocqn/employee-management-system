@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { HandleGetAttendances, HandleUpdateAttendance, HandleDeleteAttendance, HandleInitializeAttendance, HandleGetAttendanceById } from "../Thunks/AttendanceThunk";
+import { HandleGetAttendances, HandleUpdateAttendance, HandleDeleteAttendance, HandleInitializeAttendance, HandleGetAttendanceById, HandleAttendanceLogin, HandleAttendanceLogout } from "../Thunks/AttendanceThunk";
 
 const AttendanceSlice = createSlice({
     name: "AttendanceSlice",
@@ -79,6 +79,32 @@ const AttendanceSlice = createSlice({
             state.allAttendance.push(action.payload.data);
         });
         builder.addCase(HandleInitializeAttendance.rejected, (state, action) => {
+            state.isActionLoading = false;
+            state.error = action.payload;
+        });
+
+        // Login
+        builder.addCase(HandleAttendanceLogin.pending, (state) => {
+            state.isActionLoading = true;
+        });
+        builder.addCase(HandleAttendanceLogin.fulfilled, (state, action) => {
+            state.isActionLoading = false;
+            state.currentAttendance = action.payload.data;
+        });
+        builder.addCase(HandleAttendanceLogin.rejected, (state, action) => {
+            state.isActionLoading = false;
+            state.error = action.payload;
+        });
+
+        // Logout
+        builder.addCase(HandleAttendanceLogout.pending, (state) => {
+            state.isActionLoading = true;
+        });
+        builder.addCase(HandleAttendanceLogout.fulfilled, (state, action) => {
+            state.isActionLoading = false;
+            state.currentAttendance = action.payload.data;
+        });
+        builder.addCase(HandleAttendanceLogout.rejected, (state, action) => {
             state.isActionLoading = false;
             state.error = action.payload;
         });

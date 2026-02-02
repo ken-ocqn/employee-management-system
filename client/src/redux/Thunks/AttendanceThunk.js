@@ -56,3 +56,25 @@ export const HandleInitializeAttendance = createAsyncThunk("HandleInitializeAtte
         return rejectWithValue(error.response.data);
     }
 });
+
+export const HandleAttendanceLogin = createAsyncThunk("HandleAttendanceLogin", async (data, { rejectWithValue }) => {
+    try {
+        const response = await apiService.post(AttendanceEndPoints.LOGIN, data, {
+            withCredentials: true
+        });
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.response.data);
+    }
+});
+
+export const HandleAttendanceLogout = createAsyncThunk("HandleAttendanceLogout", async (data, { rejectWithValue }) => {
+    try {
+        const response = await apiService.post(AttendanceEndPoints.LOGOUT, data, {
+            withCredentials: true
+        });
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.response.data);
+    }
+});

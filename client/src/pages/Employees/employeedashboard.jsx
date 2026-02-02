@@ -1,13 +1,15 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { HandleGetEmployees, HandlePostEmployees } from "../../redux/Thunks/EmployeeThunk"
 import { HandleGetLeaves } from "../../redux/Thunks/LeavesThunk"
-import { HandleGetAttendanceById } from "../../redux/Thunks/AttendanceThunk"
+import { HandleGetAttendanceById, HandleAttendanceLogin, HandleAttendanceLogout, HandleInitializeAttendance } from "../../redux/Thunks/AttendanceThunk"
 import { ApplyLeaveDialog } from "../../components/employee/ApplyLeaveDialog"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Loading } from "../../components/common/loading"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 import {
     Calendar,
     Briefcase,
@@ -29,7 +31,9 @@ import {
     Stethoscope,
     HeartPulse,
     Baby,
-    Users
+    Users,
+    LogIn,
+    Loader2
 } from "lucide-react"
 
 const getLeaveIcon = (type) => {
@@ -45,9 +49,15 @@ const getLeaveIcon = (type) => {
 
 export const EmployeeDashboard = () => {
     const dispatch = useDispatch()
+    const { toast } = useToast()
     const { data: employee, isLoading: isEmpLoading } = useSelector((state) => state.employeereducer)
     const { allLeaves } = useSelector((state) => state.leavesreducer)
-    const { currentAttendance, isLoading: isAttendanceLoading } = useSelector((state) => state.attendancereducer)
+    const { currentAttendance, isActionLoading } = useSelector((state) => state.attendancereducer)
+    const [isCapturingGPS, setIsCapturingGPS] = useState(false)
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+    const [confirmAction, setConfirmAction] = useState(null) // 'login' or 'logout'
+    const [locationData, setLocationData] = useState(null)
+    const initializingRef = useRef(false)
 
     useEffect(() => {
         dispatch(HandleGetEmployees({ apiroute: "GET_PROFILE" }))
@@ -55,13 +65,233 @@ export const EmployeeDashboard = () => {
     }, [dispatch])
 
     useEffect(() => {
-        if (employee && employee.attendance) {
-            dispatch(HandleGetAttendanceById(employee.attendance))
+        const initializeAttendance = async () => {
+            if (employee && !initializingRef.current) {
+                console.log("Employee data:", employee);
+                console.log("Employee ID:", employee._id);
+                console.log("Employee attendance:", employee.attendance);
+
+                if (employee.attendance) {
+                    // Employee has attendance record reference, try to fetch it
+                    try {
+                        await dispatch(HandleGetAttendanceById(employee.attendance)).unwrap()
+                    } catch (error) {
+                        // If attendance record not found (404), it means the reference is stale
+                        // Re-initialize the attendance record
+                        console.warn("Attendance record not found, re-initializing...", error);
+                        if (employee._id) {
+                            initializingRef.current = true;
+                            const payload = { employeeID: employee._id };
+                            console.log("Re-initializing attendance with payload:", payload);
+                            try {
+                                await dispatch(HandleInitializeAttendance(payload)).unwrap()
+                                // After initialization, fetch the profile again to get the new attendance ID
+                                dispatch(HandleGetEmployees({ apiroute: "GET_PROFILE" }))
+                            } catch (initError) {
+                                console.error("Failed to re-initialize attendance:", initError)
+                                initializingRef.current = false
+                            }
+                        }
+                    }
+                } else if (employee._id) {
+                    // Employee doesn't have attendance record, initialize it
+                    initializingRef.current = true
+                    const payload = { employeeID: employee._id };
+                    console.log("Initializing attendance with payload:", payload);
+                    try {
+                        await dispatch(HandleInitializeAttendance(payload)).unwrap()
+                        // After initialization, fetch the profile again to get the attendance ID
+                        dispatch(HandleGetEmployees({ apiroute: "GET_PROFILE" }))
+                    } catch (error) {
+                        console.error("Failed to initialize attendance:", error)
+                        initializingRef.current = false // Reset on error so user can retry
+                    }
+                } else {
+                    console.error("Employee ID is missing!");
+                }
+            }
         }
-    }, [employee, dispatch])
+
+        initializeAttendance()
+    }, [employee?.attendance, dispatch])
+
 
     const handleLogout = () => {
         dispatch(HandlePostEmployees({ apiroute: "LOGOUT", data: {} }))
+    }
+
+    const captureLocation = () => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error("Geolocation not supported by your browser"))
+                return
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    })
+                },
+                (error) => {
+                    let errorMessage = "Unable to retrieve location"
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = "Location permission denied. Please enable location access."
+                            break
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = "Location information unavailable."
+                            break
+                        case error.TIMEOUT:
+                            errorMessage = "Location request timed out. Please try again."
+                            break
+                    }
+                    reject(new Error(errorMessage))
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            )
+        })
+    }
+
+    const fetchAddress = async (latitude, longitude) => {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`, {
+                headers: {
+                    'User-Agent': 'EmployeeManagementSystem/1.0'
+                }
+            })
+            const data = await response.json()
+            return data.display_name || "Address not found"
+        } catch (error) {
+            console.error("Error fetching address:", error)
+            return "Unable to retrieve address"
+        }
+    }
+
+    const handleAttendanceLogin = async () => {
+        if (!currentAttendance) {
+            toast({
+                title: "Error",
+                description: "Attendance record is being initialized. Please refresh the page or wait a moment.",
+                variant: "destructive"
+            })
+            return
+        }
+
+        setIsCapturingGPS(true)
+        try {
+            const location = await captureLocation()
+            const address = await fetchAddress(location.latitude, location.longitude)
+            setLocationData({ ...location, address })
+            setConfirmAction('login')
+            setShowConfirmDialog(true)
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error.message || "Failed to capture location",
+                variant: "destructive"
+            })
+        } finally {
+            setIsCapturingGPS(false)
+        }
+    }
+
+    const handleAttendanceLogout = async () => {
+        if (!currentAttendance) {
+            toast({
+                title: "Error",
+                description: "Attendance record is being initialized. Please refresh the page or wait a moment.",
+                variant: "destructive"
+            })
+            return
+        }
+
+        setIsCapturingGPS(true)
+        try {
+            const location = await captureLocation()
+            const address = await fetchAddress(location.latitude, location.longitude)
+            setLocationData({ ...location, address })
+            setConfirmAction('logout')
+            setShowConfirmDialog(true)
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error.message || "Failed to capture location",
+                variant: "destructive"
+            })
+        } finally {
+            setIsCapturingGPS(false)
+        }
+    }
+
+    const confirmAttendance = async () => {
+        if (!locationData || !currentAttendance) return
+
+        setShowConfirmDialog(false)
+        setIsCapturingGPS(true)
+
+        try {
+            if (confirmAction === 'login') {
+                await dispatch(HandleAttendanceLogin({
+                    attendanceID: currentAttendance._id,
+                    latitude: locationData.latitude,
+                    longitude: locationData.longitude,
+                    accuracy: locationData.accuracy,
+                    address: locationData.address
+                })).unwrap()
+
+                toast({
+                    title: "Success",
+                    description: "Attendance login successful!",
+                })
+            } else if (confirmAction === 'logout') {
+                await dispatch(HandleAttendanceLogout({
+                    attendanceID: currentAttendance._id,
+                    latitude: locationData.latitude,
+                    longitude: locationData.longitude,
+                    accuracy: locationData.accuracy,
+                    address: locationData.address
+                })).unwrap()
+
+                toast({
+                    title: "Success",
+                    description: "Attendance logout successful!",
+                })
+            }
+
+            // Refresh attendance data
+            dispatch(HandleGetAttendanceById(currentAttendance._id))
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error.message || `Failed to ${confirmAction} attendance`,
+                variant: "destructive"
+            })
+        } finally {
+            setIsCapturingGPS(false)
+            setLocationData(null)
+            setConfirmAction(null)
+        }
+    }
+
+    const cancelAttendance = () => {
+        setShowConfirmDialog(false)
+        setLocationData(null)
+        setConfirmAction(null)
+    }
+
+    const calculateDuration = (inTime, outTime) => {
+        if (!inTime || !outTime) return null;
+        const diff = new Date(outTime) - new Date(inTime);
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours}h ${minutes}m`;
     }
 
     const myLeaves = useMemo(() => {
@@ -71,6 +301,14 @@ export const EmployeeDashboard = () => {
     const attendanceLogs = useMemo(() => {
         return currentAttendance?.attendancelog || []
     }, [currentAttendance])
+
+    const todayLog = useMemo(() => {
+        const today = new Date().toISOString().split("T")[0]
+        return attendanceLogs.find(log => new Date(log.logdate).toISOString().split("T")[0] === today)
+    }, [attendanceLogs])
+
+    const canLogin = !todayLog || !todayLog.loginTime
+    const canLogout = todayLog && todayLog.loginTime && !todayLog.logoutTime
 
     if (isEmpLoading || !employee) return <Loading />
 
@@ -87,7 +325,7 @@ export const EmployeeDashboard = () => {
         { icon: <MapPin className="w-3.5 h-3.5 text-slate-400" />, value: employee.presentaddress || "No address provided" },
     ]
 
-    const latestStatus = attendanceLogs[attendanceLogs.length - 1]?.logstatus || "Not Set";
+    const latestStatus = todayLog?.logstatus || "Not Set";
 
     return (
         <div className="employee-dashboard min-h-screen bg-[#F8FAFC] p-4 md:p-8 font-sans antialiased text-slate-900">
@@ -172,6 +410,46 @@ export const EmployeeDashboard = () => {
                                     </div>
                                     Attendance Overview
                                 </h2>
+                                <div className="flex gap-3">
+                                    {canLogin && (
+                                        <Button
+                                            onClick={handleAttendanceLogin}
+                                            disabled={isCapturingGPS || isActionLoading}
+                                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-6 rounded-2xl transition-all duration-300 gap-2 h-auto shadow-lg shadow-emerald-200/50"
+                                        >
+                                            {isCapturingGPS || isActionLoading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    {isCapturingGPS ? "Getting Location..." : "Logging In..."}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <LogIn className="w-4 h-4" />
+                                                    Clock In
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
+                                    {canLogout && (
+                                        <Button
+                                            onClick={handleAttendanceLogout}
+                                            disabled={isCapturingGPS || isActionLoading}
+                                            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-6 py-6 rounded-2xl transition-all duration-300 gap-2 h-auto shadow-lg shadow-rose-200/50"
+                                        >
+                                            {isCapturingGPS || isActionLoading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    {isCapturingGPS ? "Getting Location..." : "Logging Out..."}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <LogOut className="w-4 h-4" />
+                                                    Clock Out
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -233,30 +511,83 @@ export const EmployeeDashboard = () => {
                                             <table className="w-full text-sm text-left">
                                                 <thead>
                                                     <tr className="bg-slate-50/50 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                                                        <th className="px-8 py-4">Date & Day</th>
-                                                        <th className="px-8 py-4 text-right">Status Indicator</th>
+                                                        <th className="px-6 py-4">Date & Status</th>
+                                                        <th className="px-6 py-4">Timeline & Location</th>
+                                                        <th className="px-6 py-4 text-right">Duration</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
                                                     {attendanceLogs.length > 0 ? (
                                                         [...attendanceLogs].reverse().slice(0, 5).map((log, idx) => (
                                                             <tr key={idx} className="group hover:bg-slate-50/80 transition-all duration-300">
-                                                                <td className="px-8 py-4">
+                                                                <td className="px-6 py-4">
                                                                     <div className="flex flex-col">
                                                                         <span className="font-bold text-slate-700 tracking-tight">
                                                                             {new Date(log.logdate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                                         </span>
-                                                                        <span className="text-[10px] text-slate-400 font-semibold uppercase">{new Date(log.logdate).toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                            <div className={`h-1.5 w-1.5 rounded-full ${log.logstatus === "Present" ? "bg-emerald-500 shadow-sm" :
+                                                                                log.logstatus === "Absent" ? "bg-rose-500 shadow-sm" : "bg-slate-300"}`} />
+                                                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${log.logstatus === "Present" ? "text-emerald-500" :
+                                                                                log.logstatus === "Absent" ? "text-rose-500" : "text-slate-400"}`}>
+                                                                                {log.logstatus}
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-8 py-4 text-right">
-                                                                    <div className="flex items-center justify-end gap-3">
-                                                                        <span className={`text-[11px] font-bold uppercase tracking-wider ${log.logstatus === "Present" ? "text-emerald-500" :
-                                                                            log.logstatus === "Absent" ? "text-rose-500" : "text-slate-400"}`}>
-                                                                            {log.logstatus}
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex flex-col gap-2">
+                                                                        <div className="flex items-center gap-4">
+                                                                            {/* Clock In */}
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600">
+                                                                                    <LogIn className="w-3 h-3" />
+                                                                                </div>
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="text-[10px] font-bold text-slate-400 uppercase leading-none">In</span>
+                                                                                    <span className="text-xs font-bold text-slate-600">
+                                                                                        {log.loginTime ? new Date(log.loginTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="h-4 w-[1px] bg-slate-100 mx-1" />
+
+                                                                            {/* Clock Out */}
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="p-1.5 bg-rose-50 rounded-lg text-rose-600">
+                                                                                    <LogOut className="w-3 h-3" />
+                                                                                </div>
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="text-[10px] font-bold text-slate-400 uppercase leading-none">Out</span>
+                                                                                    <span className="text-xs font-bold text-slate-600">
+                                                                                        {log.logoutTime ? new Date(log.logoutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Addresses */}
+                                                                        {(log.loginLocation?.address || log.logoutLocation?.address) && (
+                                                                            <div className="flex flex-col gap-0.5 max-w-[200px]">
+                                                                                {log.loginLocation?.address && (
+                                                                                    <div className="flex items-start gap-1">
+                                                                                        <MapPin className="w-2.5 h-2.5 text-slate-300 mt-0.5 flex-shrink-0" />
+                                                                                        <span className="text-[9px] text-slate-400 truncate" title={log.loginLocation.address}>
+                                                                                            {log.loginLocation.address}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right">
+                                                                    <div className="flex flex-col items-end">
+                                                                        <span className="font-bold text-slate-700 text-sm">
+                                                                            {calculateDuration(log.loginTime, log.logoutTime) || "--"}
                                                                         </span>
-                                                                        <div className={`h-2.5 w-2.5 rounded-full ${log.logstatus === "Present" ? "bg-emerald-500 shadow-sm shadow-emerald-200" :
-                                                                            log.logstatus === "Absent" ? "bg-rose-500 shadow-sm shadow-rose-200" : "bg-slate-300"}`} />
+                                                                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Hrs Worked</span>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -403,6 +734,118 @@ export const EmployeeDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Attendance Confirmation Dialog */}
+            <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            {confirmAction === 'login' ? (
+                                <>
+                                    <LogIn className="w-5 h-5 text-green-600" />
+                                    Confirm Clock In
+                                </>
+                            ) : (
+                                <>
+                                    <LogOut className="w-5 h-5 text-red-600" />
+                                    Confirm Clock Out
+                                </>
+                            )}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Please review your attendance information before confirming.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        {/* Date & Time */}
+                        <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                            <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time</p>
+                                <p className="text-sm font-bold text-slate-700 mt-1">
+                                    {new Date().toLocaleString('en-US', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit'
+                                    })}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* GPS Location & Address */}
+                        {locationData && (
+                            <div className="space-y-3">
+                                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                                    <MapPin className="w-5 h-5 text-green-600 mt-0.5" />
+                                    <div className="flex-1">
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Location Address</p>
+                                        <p className="text-sm font-medium text-slate-700 mt-1 leading-relaxed">
+                                            {locationData.address}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                                    <div className="w-5 h-5 flex items-center justify-center mt-0.5">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">GPS Coordinates</p>
+                                        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                            <p className="text-xs text-slate-600">
+                                                <span className="font-semibold">Lat:</span> {locationData.latitude.toFixed(6)}
+                                            </p>
+                                            <p className="text-xs text-slate-600">
+                                                <span className="font-semibold">Long:</span> {locationData.longitude.toFixed(6)}
+                                            </p>
+                                            <p className="text-xs text-slate-600">
+                                                <span className="font-semibold">Accuracy:</span> ±{locationData.accuracy.toFixed(1)}m
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Action Type */}
+                        <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                            <ClipboardList className="w-5 h-5 text-purple-600 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Action</p>
+                                <p className="text-sm font-bold text-slate-700 mt-1">
+                                    {confirmAction === 'login' ? 'Clock In - Start Work' : 'Clock Out - End Work'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={cancelAttendance}
+                            className="flex-1"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={confirmAttendance}
+                            disabled={isCapturingGPS || !locationData}
+                            className={`flex-1 ${confirmAction === 'login'
+                                ? 'bg-green-600 hover:bg-green-700'
+                                : 'bg-red-600 hover:bg-red-700'}`}
+                        >
+                            {isCapturingGPS ? 'Processing...' : 'Confirm'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

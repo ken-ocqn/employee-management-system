@@ -73,11 +73,13 @@ export const NoticeEndPoints = {
 }
 
 export const AttendanceEndPoints = {
-    GETALL: "/api/v1/attendance/",
+    GETALL: "/api/v1/attendance/all",
     GETONE: (id) => `/api/v1/attendance/${id}`,
     UPDATE: "/api/v1/attendance/update-attendance",
     DELETE: (id) => `/api/v1/attendance/delete-attendance/${id}`,
-    INITIALIZE: "/api/v1/attendance/initialize-attendance"
+    INITIALIZE: "/api/v1/attendance/initialize-attendance",
+    LOGIN: "/api/v1/attendance/login",
+    LOGOUT: "/api/v1/attendance/logout"
 }
 
 export const RequestEndPoints = {

@@ -23,6 +23,24 @@ const AttendanceSchema = new Schema({
                 type: String,
                 required: true,
                 enum: ['Present', 'Absent', 'Not Specified']
+            },
+            loginTime: {
+                type: Date
+            },
+            logoutTime: {
+                type: Date
+            },
+            loginLocation: {
+                latitude: { type: Number },
+                longitude: { type: Number },
+                accuracy: { type: Number },
+                address: { type: String }
+            },
+            logoutLocation: {
+                latitude: { type: Number },
+                longitude: { type: Number },
+                accuracy: { type: Number },
+                address: { type: String }
             }
         }
     ],
