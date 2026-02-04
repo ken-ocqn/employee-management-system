@@ -25,7 +25,9 @@
     "mongoose": "^8.8.1",
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1",
-    "react-top-loading-bar": "^2.3.1"
+    "react-top-loading-bar": "^2.3.1",
+    "ssh2": "^1.17.0",
+    "tunnel-ssh": "^5.2.0"
   },
   "overrides": {
     "tar": "^7.5.3"

@@ -48,7 +48,7 @@ app.use(cors({
   },
   credentials: true,
 }));
-// app.options('*', cors())
+app.options('*', cors())
 
 app.use("/api/auth/employee", EmployeeAuthRouter)
 
@@ -94,8 +94,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT, async () => {
-  console.log(`Server running on http://localhost:${process.env.PORT}`)
+app.listen(process.env.PORT, "0.0.0.0", async () => {
+  console.log(`Server running on port ${process.env.PORT}`)
 })
 
 export default app;
