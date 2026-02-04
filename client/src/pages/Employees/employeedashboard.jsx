@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from "react-redux"
 import { HandleGetEmployees, HandlePostEmployees } from "../../redux/Thunks/EmployeeThunk"
 import { HandleGetLeaves } from "../../redux/Thunks/LeavesThunk"
 import { HandleGetAttendanceById, HandleAttendanceLogin, HandleAttendanceLogout, HandleInitializeAttendance } from "../../redux/Thunks/AttendanceThunk"
+import { HandleGetRequests } from "../../redux/Thunks/RequestThunk"
 import { ApplyLeaveDialog } from "../../components/employee/ApplyLeaveDialog"
+import { CreateRequestDialog } from "../../components/employee/CreateRequestDialog"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -33,7 +35,9 @@ import {
     Baby,
     Users,
     LogIn,
-    Loader2
+    Loader2,
+    FileText,
+    Download
 } from "lucide-react"
 
 const getLeaveIcon = (type) => {
@@ -53,6 +57,7 @@ export const EmployeeDashboard = () => {
     const { data: employee, isLoading: isEmpLoading } = useSelector((state) => state.employeereducer)
     const { allLeaves } = useSelector((state) => state.leavesreducer)
     const { currentAttendance, isActionLoading } = useSelector((state) => state.attendancereducer)
+    const { allRequests } = useSelector((state) => state.requestreducer)
     const [isCapturingGPS, setIsCapturingGPS] = useState(false)
     const [showConfirmDialog, setShowConfirmDialog] = useState(false)
     const [confirmAction, setConfirmAction] = useState(null) // 'login' or 'logout'
@@ -62,6 +67,7 @@ export const EmployeeDashboard = () => {
     useEffect(() => {
         dispatch(HandleGetEmployees({ apiroute: "GET_PROFILE" }))
         dispatch(HandleGetLeaves({ apiroute: "GET_MY_LEAVES" }))
+        dispatch(HandleGetRequests({ apiroute: "GET_MY_REQUESTS" }))
     }, [dispatch])
 
     useEffect(() => {
@@ -726,6 +732,114 @@ export const EmployeeDashboard = () => {
                                     <div className="p-4 bg-slate-50/50 border-t border-slate-50 flex justify-center">
                                         <Button variant="ghost" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 gap-2">
                                             View Full History <ChevronRight className="w-3 h-3" />
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </section>
+
+                        {/* Requests Section */}
+                        <section className="space-y-6">
+                            <div className="flex items-center justify-between px-2">
+                                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                                    <div className="p-2 bg-violet-50 rounded-xl">
+                                        <FileText className="w-6 h-6 text-violet-600" />
+                                    </div>
+                                    Request Management
+                                </h2>
+                                <CreateRequestDialog employeeId={employee._id} />
+                            </div>
+
+                            {/* Recent Requests Table */}
+                            <Card className="border-none shadow-xl shadow-slate-200/50 bg-white rounded-3xl overflow-hidden">
+                                <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 px-8 py-6">
+                                    <div className="flex flex-col gap-1">
+                                        <CardTitle className="text-lg font-bold text-slate-800">My Requests</CardTitle>
+                                        <CardDescription className="text-xs font-medium">Track your submitted requests</CardDescription>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-50 rounded-full">
+                                        <span className="text-xs font-bold text-slate-800">{allRequests?.length || 0}</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Requests</span>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm text-left">
+                                            <thead>
+                                                <tr className="bg-slate-50/50 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+                                                    <th className="px-8 py-4">Title</th>
+                                                    <th className="px-8 py-4">Content</th>
+                                                    <th className="px-8 py-4">Submitted</th>
+                                                    <th className="px-8 py-4">Attachment</th>
+                                                    <th className="px-8 py-4 text-right">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-50">
+                                                {allRequests && allRequests.length > 0 ? allRequests.slice(0, 5).map((request) => (
+                                                    <tr key={request._id} className="group hover:bg-slate-50/80 transition-all duration-300">
+                                                        <td className="px-8 py-5">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-white transition-colors">
+                                                                    <FileText className="w-4 h-4 text-violet-600" />
+                                                                </div>
+                                                                <span className="font-bold text-slate-700">{request.requesttitle}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-5">
+                                                            <div className="max-w-[300px] truncate text-slate-600 font-medium" title={request.requestconent}>
+                                                                {request.requestconent}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-5">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-slate-600 font-semibold tracking-tight">
+                                                                    {new Date(request.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                                </span>
+                                                                <span className="text-[10px] text-slate-400 font-bold uppercase italic">
+                                                                    {new Date(request.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-5">
+                                                            {request.attachmentUrl ? (
+                                                                <a
+                                                                    href={request.attachmentUrl}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-bold text-xs"
+                                                                >
+                                                                    <Download className="w-4 h-4" />
+                                                                    Download
+                                                                </a>
+                                                            ) : (
+                                                                <span className="text-[10px] text-slate-400 font-bold uppercase italic">No File</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-8 py-5 text-right">
+                                                            <Badge className={`${request.status === "Approved" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                                                                request.status === "Denied" ? "bg-rose-50 text-rose-600 border-rose-100" :
+                                                                    "bg-amber-50 text-amber-600 border-amber-100"
+                                                                } border font-black text-[9px] px-3 py-1 rounded-full uppercase tracking-widest shadow-sm`}>
+                                                                {request.status}
+                                                            </Badge>
+                                                        </td>
+                                                    </tr>
+                                                )) : (
+                                                    <tr>
+                                                        <td colSpan="4" className="py-12 text-center">
+                                                            <div className="flex flex-col items-center gap-2 opacity-30">
+                                                                <FileText className="w-8 h-8" />
+                                                                <span className="text-xs font-bold uppercase tracking-widest italic">No requests submitted yet</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="p-4 bg-slate-50/50 border-t border-slate-50 flex justify-center">
+                                        <Button variant="ghost" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-violet-600 gap-2">
+                                            View All Requests <ChevronRight className="w-3 h-3" />
                                         </Button>
                                     </div>
                                 </CardContent>

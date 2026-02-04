@@ -83,9 +83,13 @@ export const AttendanceEndPoints = {
 }
 
 export const RequestEndPoints = {
+    CREATE: "/api/v1/request/create-request",
     GETALL: "/api/v1/request/all",
+    GET_MY_REQUESTS: "/api/v1/request/my-requests",
     GETONE: (id) => `/api/v1/request/${id}`,
     UPDATE_STATUS: "/api/v1/request/update-request-status",
+    UPDATE_ATTACHMENT: (id) => `/api/v1/request/update-attachment/${id}`,
     DELETE: (id) => `/api/v1/request/delete-request/${id}`
 }
+
 

@@ -76,7 +76,7 @@ app.use("/api/v1/applicant", ApplicantRouter)
 
 app.use("/api/v1/interview-insights", InterviewInsightRouter)
 
-app.use("/api/v1/generate-request", GenerateRequestRouter)
+app.use("/api/v1/request", GenerateRequestRouter)
 
 app.use("/api/v1/corporate-calendar", CorporateCalendarRouter)
 

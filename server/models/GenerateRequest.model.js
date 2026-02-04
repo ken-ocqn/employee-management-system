@@ -33,6 +33,14 @@ const GenerateRequestSchema = new Schema({
     organizationID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Organization"
+    },
+    attachmentUrl: {
+        type: String,
+        default: ""
+    },
+    attachmentName: {
+        type: String,
+        default: ""
     }
 }, { timestamps: true });
 

@@ -52,7 +52,9 @@ export const HandleCreateGenerateRequest = async (req, res) => {
 
 export const HandleAllGenerateRequest = async (req, res) => {
     try {
-        const requests = await GenerateRequest.find({ organizationID: req.ORGID }).populate("employee department", "firstname lastname name")
+        const requests = await GenerateRequest.find({ organizationID: req.ORGID })
+            .populate("employee department", "firstname lastname name")
+            .sort({ createdAt: -1 })
         return res.status(200).json({ success: true, message: "All requests retrieved successfully", data: requests })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
@@ -92,7 +94,11 @@ export const HandleUpdateRequestByHR = async (req, res) => {
     try {
         const { requestID, approvedby, status } = req.body
 
-        const request = await GenerateRequest.findByIdAndUpdate(requestID, { approvedby, status }, { new: true })
+        const request = await GenerateRequest.findByIdAndUpdate(
+            requestID,
+            { approvedby, status },
+            { new: true }
+        ).populate("employee department", "firstname lastname name")
 
         if (!request) {
             return res.status(404).json({ success: false, message: "Request not found" })
@@ -104,6 +110,57 @@ export const HandleUpdateRequestByHR = async (req, res) => {
     }
 }
 
+export const HandleUpdateAttachment = async (req, res) => {
+    try {
+        const { requestID } = req.params
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "No file uploaded" })
+        }
+
+        const request = await GenerateRequest.findByIdAndUpdate(
+            requestID,
+            {
+                attachmentUrl: req.file.location,
+                attachmentName: req.file.originalname
+            },
+            { new: true }
+        )
+
+        if (!request) {
+            return res.status(404).json({ success: false, message: "Request not found" })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Attachment uploaded successfully",
+            data: request
+        })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
+    }
+}
+
+
+export const HandleGetRequestsByEmployee = async (req, res) => {
+    try {
+        const requests = await GenerateRequest.find({
+            employee: req.EMid,
+            organizationID: req.ORGID
+        }).populate("department", "name").sort({ createdAt: -1 })
+
+        return res.status(200).json({
+            success: true,
+            message: "Employee requests retrieved successfully",
+            data: requests
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error
+        })
+    }
+}
 
 export const HandleDeleteRequest = async (req, res) => {
     try {

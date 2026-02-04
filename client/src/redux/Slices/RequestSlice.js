@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { HandleGetRequests, HandleUpdateRequestStatus, HandleDeleteRequest, HandleGetRequestById } from "../Thunks/RequestThunk";
+import { HandleGetRequests, HandleUpdateRequestStatus, HandleDeleteRequest, HandleGetRequestById, HandleCreateRequest, HandleUpdateAttachment } from "../Thunks/RequestThunk";
 
 const RequestSlice = createSlice({
     name: "RequestSlice",
@@ -55,6 +55,19 @@ const RequestSlice = createSlice({
             state.error = action.payload;
         });
 
+        // Create Request
+        builder.addCase(HandleCreateRequest.pending, (state) => {
+            state.isActionLoading = true;
+        });
+        builder.addCase(HandleCreateRequest.fulfilled, (state, action) => {
+            state.isActionLoading = false;
+            state.allRequests.push(action.payload.data);
+        });
+        builder.addCase(HandleCreateRequest.rejected, (state, action) => {
+            state.isActionLoading = false;
+            state.error = action.payload;
+        });
+
         // Delete
         builder.addCase(HandleDeleteRequest.pending, (state) => {
             state.isActionLoading = true;
@@ -64,6 +77,19 @@ const RequestSlice = createSlice({
             // Handle filtering locally after successful delete if needed, or refetch
         });
         builder.addCase(HandleDeleteRequest.rejected, (state, action) => {
+            state.isActionLoading = false;
+            state.error = action.payload;
+        });
+
+        // Update Attachment
+        builder.addCase(HandleUpdateAttachment.pending, (state) => {
+            state.isActionLoading = true;
+        });
+        builder.addCase(HandleUpdateAttachment.fulfilled, (state, action) => {
+            state.isActionLoading = false;
+            state.allRequests = state.allRequests.map(req => req._id === action.payload.data._id ? action.payload.data : req);
+        });
+        builder.addCase(HandleUpdateAttachment.rejected, (state, action) => {
             state.isActionLoading = false;
             state.error = action.payload;
         });
