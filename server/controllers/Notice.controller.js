@@ -2,6 +2,9 @@ import { Department } from "../models/Department.model.js"
 import { Employee } from "../models/Employee.model.js"
 import { HumanResources } from "../models/HR.model.js"
 import { Notice } from "../models/Notice.model.js"
+import { DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import { s3 } from "../utils/s3NoticeConfig.js"
 
 export const HandleCreateNotice = async (req, res) => {
     try {
@@ -40,7 +43,10 @@ export const HandleCreateNotice = async (req, res) => {
                 audience: audience,
                 department: departmentID,
                 createdby: HRID,
-                organizationID: req.ORGID
+                organizationID: req.ORGID,
+                attachmentUrl: req.file ? req.file.location : null,
+                attachmentName: req.file ? req.file.originalname : null,
+                attachmentType: req.file ? req.file.mimetype : null
             })
 
             department.notice.push(notice._id)
@@ -78,7 +84,10 @@ export const HandleCreateNotice = async (req, res) => {
                 audience: audience,
                 employee: employeeID,
                 createdby: HRID,
-                organizationID: req.ORGID
+                organizationID: req.ORGID,
+                attachmentUrl: req.file ? req.file.location : null,
+                attachmentName: req.file ? req.file.originalname : null,
+                attachmentType: req.file ? req.file.mimetype : null
             })
 
             employee.notice.push(notice._id)
@@ -135,30 +144,6 @@ export const HandleNotice = async (req, res) => {
     }
 }
 
-export const HandleUpdateNotice = async (req, res) => {
-    try {
-
-        const { noticeID, title, content, audience, employee, department } = req.body
-        const UpdatedData = {
-            title,
-            content,
-            audience,
-            employee: audience === "Employee-Specific" ? employee : undefined,
-            department: audience === "Department-Specific" ? department : undefined
-        }
-
-        const notice = await Notice.findByIdAndUpdate(noticeID, UpdatedData, { new: true })
-
-        if (!notice) {
-            return res.status(404).json({ success: false, message: "Notice not found" })
-        }
-
-        return res.status(200).json({ success: true, message: "Notice record updated successfully", data: notice })
-
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
-    }
-}
 
 export const HandleDeleteNotice = async (req, res) => {
     try {
@@ -174,6 +159,21 @@ export const HandleDeleteNotice = async (req, res) => {
             const employee = await Employee.findById(notice.employee)
             employee.notice.splice(employee.notice.indexOf(noticeID), 1)
 
+            // Delete S3 file if exists
+            if (notice.attachmentUrl) {
+                try {
+                    const key = notice.attachmentUrl.split('.com/')[1];
+                    const deleteCommand = new DeleteObjectCommand({
+                        Bucket: process.env.S3_BUCKET_NAME,
+                        Key: key
+                    });
+                    await s3.send(deleteCommand);
+                } catch (s3Error) {
+                    console.error('Error deleting S3 file:', s3Error);
+                    // Continue with notice deletion even if S3 deletion fails
+                }
+            }
+
             await employee.save()
             await notice.deleteOne()
 
@@ -184,6 +184,21 @@ export const HandleDeleteNotice = async (req, res) => {
             const department = await Department.findById(notice.department)
             department.notice.splice(department.notice.indexOf(noticeID), 1)
 
+            // Delete S3 file if exists
+            if (notice.attachmentUrl) {
+                try {
+                    const key = notice.attachmentUrl.split('.com/')[1];
+                    const deleteCommand = new DeleteObjectCommand({
+                        Bucket: process.env.S3_BUCKET_NAME,
+                        Key: key
+                    });
+                    await s3.send(deleteCommand);
+                } catch (s3Error) {
+                    console.error('Error deleting S3 file:', s3Error);
+                    // Continue with notice deletion even if S3 deletion fails
+                }
+            }
+
             await department.save()
             await notice.deleteOne()
 
@@ -191,5 +206,95 @@ export const HandleDeleteNotice = async (req, res) => {
         }
     } catch (error) {
         return res.status(500).json({ success: false, message: "internal server error", error: error })
+    }
+}
+
+// Get notices for employee (employee-specific or department-specific)
+export const HandleGetEmployeeNotices = async (req, res) => {
+    try {
+        const employeeID = req.EMid; // Employee ID from token
+
+        // Fetch employee to get their department
+        const employee = await Employee.findById(employeeID).select('department');
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee not found"
+            });
+        }
+
+        // Find notices that are either:
+        // 1. Employee-specific and targeted to this employee
+        // 2. Department-specific and targeted to this employee's department
+        const notices = await Notice.find({
+            $or: [
+                {
+                    audience: "Employee-Specific",
+                    employee: employeeID
+                },
+                {
+                    audience: "Department-Specific",
+                    department: employee.department
+                }
+            ]
+        })
+            .populate('department', 'name')
+            .populate('employee', 'firstname lastname')
+            .populate('createdby', 'firstname lastname')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        return res.status(200).json({
+            success: true,
+            message: "Notices fetched successfully",
+            data: notices
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// Handler to get presigned URL for notice attachment preview
+export const HandleGetNoticeAttachment = async (req, res) => {
+    try {
+        const { noticeID } = req.params
+
+        const notice = await Notice.findOne({ _id: noticeID, organizationID: req.ORGID })
+
+        if (!notice) {
+            return res.status(404).json({ success: false, message: "Notice not found" })
+        }
+
+        if (!notice.attachmentUrl) {
+            return res.status(404).json({ success: false, message: "No attachment found for this notice" })
+        }
+
+        // Extract key from S3 URL
+        const key = notice.attachmentUrl.split('.com/')[1];
+
+        // Generate presigned URL valid for 1 hour
+        const command = new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: key
+        });
+
+        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+        return res.status(200).json({
+            success: true,
+            message: "Attachment URL generated successfully",
+            data: {
+                url: presignedUrl,
+                name: notice.attachmentName,
+                type: notice.attachmentType
+            }
+        })
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }
 }

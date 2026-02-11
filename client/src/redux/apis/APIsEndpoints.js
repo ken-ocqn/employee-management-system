@@ -68,8 +68,9 @@ export const NoticeEndPoints = {
     CREATE: "/api/v1/notice/create-notice",
     GETALL: "/api/v1/notice/all/",
     GETONE: (id) => `/api/v1/notice/${id}`,
-    UPDATE: "/api/v1/notice/update-notice",
-    DELETE: (id) => `/api/v1/notice/delete-notice/${id}`
+    DELETE: (id) => `/api/v1/notice/delete-notice/${id}`,
+    GET_EMPLOYEE_NOTICES: "/api/v1/notice/employee/my-notices",
+    GET_ATTACHMENT: (id) => `/api/v1/notice/attachment/${id}`
 }
 
 export const AttendanceEndPoints = {

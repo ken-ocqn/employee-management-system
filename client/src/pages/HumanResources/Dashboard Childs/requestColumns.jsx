@@ -66,9 +66,20 @@ export const requestColumns = [
                 <div className="flex flex-col gap-1">
                     <Badge variant={variant}>{status}</Badge>
                     {attachment && (
-                        <div className="flex items-center gap-1 text-[9px] text-blue-600 font-bold uppercase tracking-wider">
-                            <Paperclip className="w-2.5 h-2.5" />
-                            File Attached
+                        <div className="flex flex-col gap-1 mt-1">
+                            <div className="flex items-center gap-1 text-[9px] text-blue-600 font-bold uppercase tracking-wider">
+                                <Paperclip className="w-2.5 h-2.5" />
+                                File Attached
+                            </div>
+                            <a
+                                href={attachment}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-[10px] text-blue-500 hover:text-blue-700 font-bold underline decoration-blue-300 hover:decoration-blue-500 transition-all ml-3"
+                            >
+                                <FileText className="w-3 h-3" />
+                                Preview File
+                            </a>
                         </div>
                     )}
                 </div>
@@ -82,6 +93,8 @@ export const requestColumns = [
             const dispatch = useDispatch()
             const { data: hrData } = useSelector((state) => state.HRReducer)
             const request = row.original
+            const isFinalized = request.status !== "Pending"
+            const hasAttachment = !!request.attachmentUrl
 
             const handleAction = (status) => {
                 dispatch(HandleUpdateRequestStatus({
@@ -93,7 +106,7 @@ export const requestColumns = [
 
             return (
                 <div className="flex flex-col gap-2">
-                    {request.status === "Pending" && (
+                    {!isFinalized && (
                         <div className="flex gap-2">
                             <Button
                                 size="sm"
@@ -113,7 +126,10 @@ export const requestColumns = [
                             </Button>
                         </div>
                     )}
-                    <UploadAttachmentDialog requestID={request._id} />
+                    <UploadAttachmentDialog
+                        requestID={request._id}
+                        disabled={isFinalized || hasAttachment}
+                    />
                 </div>
             )
         }

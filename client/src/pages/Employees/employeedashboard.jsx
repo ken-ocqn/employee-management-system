@@ -6,6 +6,7 @@ import { HandleGetAttendanceById, HandleAttendanceLogin, HandleAttendanceLogout,
 import { HandleGetRequests } from "../../redux/Thunks/RequestThunk"
 import { ApplyLeaveDialog } from "../../components/employee/ApplyLeaveDialog"
 import { CreateRequestDialog } from "../../components/employee/CreateRequestDialog"
+import { EmployeeNoticeNotifications } from "../../components/employee/EmployeeNoticeNotifications"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -354,7 +355,7 @@ export const EmployeeDashboard = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
-
+                        <EmployeeNoticeNotifications />
                         <Button
                             variant="ghost"
                             className="bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-100 font-semibold px-6 py-6 rounded-2xl transition-all duration-300 gap-2 shrink-0 h-auto"

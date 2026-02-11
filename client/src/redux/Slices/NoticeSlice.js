@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
     HandleGetNotices,
     HandleCreateNotice,
-    HandleUpdateNotice,
     HandleDeleteNotice
 } from "../Thunks/NoticeThunk";
 
@@ -58,19 +57,6 @@ const noticeSlice = createSlice({
                 state.error = action.payload;
             })
 
-            // Update Notice
-            .addCase(HandleUpdateNotice.pending, (state) => {
-                state.isActionLoading = true;
-            })
-            .addCase(HandleUpdateNotice.fulfilled, (state, action) => {
-                state.isActionLoading = false;
-                state.success = action.payload.message;
-                state.fetchData = true;
-            })
-            .addCase(HandleUpdateNotice.rejected, (state, action) => {
-                state.isActionLoading = false;
-                state.error = action.payload;
-            })
 
             // Delete Notice
             .addCase(HandleDeleteNotice.pending, (state) => {

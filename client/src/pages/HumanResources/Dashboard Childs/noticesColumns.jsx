@@ -1,4 +1,4 @@
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, FileText, Image } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -8,7 +8,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { UpdateNoticeDialogBox, DeleteNoticeDialogBox } from "../../../components/common/Dashboard/dialogboxes.jsx"
+import { DeleteNoticeDialogBox } from "../../../components/common/Dashboard/dialogboxes.jsx"
+import { NoticeAttachmentPreview } from "../../../components/common/Dashboard/NoticeAttachmentPreview.jsx"
 
 export const noticesColumns = [
     {
@@ -59,13 +60,25 @@ export const noticesColumns = [
         },
     },
     {
+        id: "attachment",
+        header: "Attachment",
+        cell: ({ row }) => {
+            const notice = row.original
+            if (notice.attachmentUrl) {
+                return (
+                    <NoticeAttachmentPreview noticeID={notice._id} attachmentName={notice.attachmentName} attachmentType={notice.attachmentType} />
+                )
+            }
+            return <span className="text-gray-400 text-sm">None</span>
+        }
+    },
+    {
         id: "actions",
         cell: ({ row }) => {
             const notice = row.original
 
             return (
                 <div className="flex gap-2">
-                    <UpdateNoticeDialogBox noticeData={notice} />
                     <DeleteNoticeDialogBox noticeID={notice._id} />
                 </div>
             )

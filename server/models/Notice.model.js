@@ -31,6 +31,18 @@ const NoticeSchema = new Schema({
     organizationID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Organization"
+    },
+    attachmentUrl: {
+        type: String,
+        default: null
+    },
+    attachmentName: {
+        type: String,
+        default: null
+    },
+    attachmentType: {
+        type: String,
+        default: null
     }
 },
     {

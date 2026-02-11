@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { HandleUpdateAttachment, HandleGetRequests } from "../../redux/Thunks/RequestThunk"
 import { Upload, Loader2, File } from "lucide-react"
 
-export const UploadAttachmentDialog = ({ requestID }) => {
+export const UploadAttachmentDialog = ({ requestID, disabled }) => {
     const dispatch = useDispatch()
     const { toast } = useToast()
     const { isActionLoading } = useSelector((state) => state.requestreducer)
@@ -67,7 +67,12 @@ export const UploadAttachmentDialog = ({ requestID }) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="text-blue-600 border-blue-600 hover:bg-blue-50 h-7 flex items-center gap-1">
+                <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={disabled}
+                    className="text-blue-600 border-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed h-7 flex items-center gap-1"
+                >
                     <Upload className="w-3 h-3" />
                     Attach File
                 </Button>

@@ -23,7 +23,7 @@ import { Loading } from "../loading.jsx"
 import { HandleDeleteHREmployees, HandleUpdateHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
 import { HandlePostHRDepartments, HandlePatchHRDepartments, HandleDeleteHRDepartments } from "../../../redux/Thunks/HRDepartmentPageThunk.js"
 import { HandleCreateSalary, HandleUpdateSalary, HandleDeleteSalary } from "../../../redux/Thunks/SalaryThunk.js"
-import { HandleCreateNotice, HandleUpdateNotice, HandleDeleteNotice } from "../../../redux/Thunks/NoticeThunk.js"
+import { HandleCreateNotice, HandleDeleteNotice } from "../../../redux/Thunks/NoticeThunk.js"
 import { useToast } from "../../../hooks/use-toast.js"
 import {
     Command,
@@ -326,10 +326,10 @@ export const AddEmployeesDialogBox = () => {
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">Employment Status</label>
-                                            <select 
-                                                name="employmentstatus" 
-                                                value={formdata.employmentstatus} 
-                                                onChange={handleformchange} 
+                                            <select
+                                                name="employmentstatus"
+                                                value={formdata.employmentstatus}
+                                                onChange={handleformchange}
                                                 className={`border-2 rounded px-2 py-1 ${errors.employmentstatus ? 'border-red-500' : 'border-gray-700'}`}
                                             >
                                                 <option value="Probationary">Probationary</option>
@@ -663,21 +663,78 @@ export const AddNoticeDialogBox = () => {
         employee: "",
         department: ""
     })
+    const [attachment, setAttachment] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState(null)
 
     const handleformchange = (event) => {
         CommonStateHandler(formdata, setformdata, event)
     }
 
-    const CreateNotice = () => {
-        const dataToSubmit = { ...formdata }
-        if (dataToSubmit.audience === "Employee-Specific") {
-            delete dataToSubmit.department
-        } else {
-            delete dataToSubmit.employee
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
+        if (!allowedTypes.includes(file.type)) {
+            toast({ variant: "destructive", title: "Error", description: "Only images (JPEG, PNG, GIF, WebP) and PDFs are allowed" })
+            return
         }
-        dispatch(HandleCreateNotice(dataToSubmit)).then((res) => {
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast({ variant: "destructive", title: "Error", description: "File size must be less than 5MB" })
+            return
+        }
+
+        setAttachment(file)
+
+        // Create preview for images
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setPreviewUrl(null)
+        }
+    }
+
+    const removeAttachment = () => {
+        setAttachment(null)
+        setPreviewUrl(null)
+    }
+
+    const CreateNotice = () => {
+        const formData = new FormData()
+        formData.append('title', formdata.title)
+        formData.append('content', formdata.content)
+        formData.append('audience', formdata.audience)
+
+        if (formdata.audience === "Employee-Specific") {
+            formData.append('employee', formdata.employee)
+        } else {
+            formData.append('department', formdata.department)
+        }
+
+        if (attachment) {
+            formData.append('attachment', attachment)
+        }
+
+        dispatch(HandleCreateNotice(formData)).then((res) => {
             if (res.payload.success) {
                 toast({ title: "Success", description: "Notice issued successfully" })
+                // Reset form
+                setformdata({
+                    title: "",
+                    content: "",
+                    audience: "Employee-Specific",
+                    employee: "",
+                    department: ""
+                })
+                setAttachment(null)
+                setPreviewUrl(null)
             } else {
                 toast({ variant: "destructive", title: "Error", description: res.payload.message })
             }
@@ -687,7 +744,7 @@ export const AddNoticeDialogBox = () => {
     return (
         <Dialog>
             <DialogTrigger className="bg-blue-800 border-2 border-blue-800 md:px-4 md:py-2 md:text-lg min-[250px]:px-2 min-[250px]:py-1 min-[250px]:text-sm text-white font-bold rounded-lg hover:bg-white hover:text-blue-800">Issue Notice</DialogTrigger>
-            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
+            <DialogContent className="max-w-[315px] sm:max-w-[50vw] max-h-[90vh] overflow-y-auto">
                 <div className="flex flex-col gap-4">
                     <h1 className="font-bold text-2xl">Issue New Notice</h1>
                     <div className="grid gap-4">
@@ -727,6 +784,32 @@ export const AddNoticeDialogBox = () => {
                                 </select>
                             </div>
                         )}
+                        <div className="flex flex-col gap-1">
+                            <label className="font-bold">Attachment (Optional)</label>
+                            <input
+                                type="file"
+                                accept="image/*,.pdf"
+                                onChange={handleFileChange}
+                                className="border-2 border-gray-700 rounded px-2 py-1"
+                            />
+                            <p className="text-xs text-gray-500">Images (JPEG, PNG, GIF, WebP) or PDF, max 5MB</p>
+                        </div>
+                        {attachment && (
+                            <div className="flex flex-col gap-2 p-2 border-2 border-gray-300 rounded">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-semibold">{attachment.name}</span>
+                                    <button onClick={removeAttachment} className="text-red-600 hover:text-red-800">✕</button>
+                                </div>
+                                {previewUrl && (
+                                    <img src={previewUrl} alt="Preview" className="max-h-40 object-contain" />
+                                )}
+                                {attachment.type === 'application/pdf' && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <span>📄 PDF File</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <DialogClose asChild>
                         <Button className="bg-blue-800 text-white" onClick={CreateNotice} disabled={!formdata.title || !formdata.content || (formdata.audience === "Employee-Specific" ? !formdata.employee : !formdata.department)}>Issue Notice</Button>
@@ -737,92 +820,6 @@ export const AddNoticeDialogBox = () => {
     )
 }
 
-export const UpdateNoticeDialogBox = ({ noticeData }) => {
-    const dispatch = useDispatch()
-    const { toast } = useToast()
-    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
-    const HRDepartmentState = useSelector((state) => state.HRDepartmentPageReducer)
-    const [formdata, setformdata] = useState({
-        noticeID: noticeData._id,
-        title: noticeData.title,
-        content: noticeData.content,
-        audience: noticeData.audience,
-        employee: noticeData.employee?._id || "",
-        department: noticeData.department?._id || ""
-    })
-
-    const handleformchange = (event) => {
-        CommonStateHandler(formdata, setformdata, event)
-    }
-
-    const UpdateNotice = () => {
-        const dataToSubmit = { ...formdata }
-        if (dataToSubmit.audience === "Employee-Specific") {
-            delete dataToSubmit.department
-        } else {
-            delete dataToSubmit.employee
-        }
-        dispatch(HandleUpdateNotice(dataToSubmit)).then((res) => {
-            if (res.payload.success) {
-                toast({ title: "Success", description: "Notice updated successfully" })
-            } else {
-                toast({ variant: "destructive", title: "Error", description: res.payload.message })
-            }
-        })
-    }
-
-    return (
-        <Dialog>
-            <DialogTrigger className="btn-sm text-blue-700 border-2 border-blue-800 px-2 py-1 rounded hover:bg-blue-800 hover:text-white">Edit</DialogTrigger>
-            <DialogContent className="max-w-[315px] sm:max-w-[50vw]">
-                <div className="flex flex-col gap-4">
-                    <h1 className="font-bold text-2xl">Update Notice</h1>
-                    <div className="grid gap-4">
-                        <div className="flex flex-col gap-1">
-                            <label className="font-bold">Title</label>
-                            <input type="text" name="title" value={formdata.title} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1" />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <label className="font-bold">Content</label>
-                            <textarea name="content" value={formdata.content} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1 h-32"></textarea>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <label className="font-bold">Audience</label>
-                            <select name="audience" value={formdata.audience} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
-                                <option value="Employee-Specific">Employee Specific</option>
-                                <option value="Department-Specific">Department Specific</option>
-                            </select>
-                        </div>
-                        {formdata.audience === "Employee-Specific" ? (
-                            <div className="flex flex-col gap-1">
-                                <label className="font-bold">Select Employee</label>
-                                <select name="employee" value={formdata.employee} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
-                                    <option value="">Select Employee</option>
-                                    {HREmployeesState.data?.map((emp) => (
-                                        <option key={emp._id} value={emp._id}>{emp.firstname} {emp.lastname}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-1">
-                                <label className="font-bold">Select Department</label>
-                                <select name="department" value={formdata.department} onChange={handleformchange} className="border-2 border-gray-700 rounded px-2 py-1">
-                                    <option value="">Select Department</option>
-                                    {HRDepartmentState.data?.map((dept) => (
-                                        <option key={dept._id} value={dept._id}>{dept.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-                    </div>
-                    <DialogClose asChild>
-                        <Button className="bg-blue-800 text-white" onClick={UpdateNotice}>Update Notice</Button>
-                    </DialogClose>
-                </div>
-            </DialogContent>
-        </Dialog>
-    )
-}
 
 export const DeleteNoticeDialogBox = ({ noticeID }) => {
     const dispatch = useDispatch()
@@ -840,6 +837,7 @@ export const DeleteNoticeDialogBox = ({ noticeID }) => {
         <Dialog>
             <DialogTrigger className="btn-sm text-red-700 border-2 border-red-800 px-2 py-1 rounded hover:bg-red-800 hover:text-white">Delete</DialogTrigger>
             <DialogContent className="max-w-[315px]">
+                <DialogTitle>Delete Notice</DialogTitle>
                 <div className="flex flex-col items-center gap-4">
                     <p className="font-bold">Are you sure you want to delete this notice?</p>
                     <div className="flex gap-2">
@@ -1263,10 +1261,10 @@ export const UpdateEmployeeDialogBox = ({ EmployeeID }) => {
                                         </div>
                                         <div className="label-input-field flex flex-col gap-1">
                                             <label className="font-bold">Employment Status</label>
-                                            <select 
-                                                name="employmentstatus" 
-                                                value={formdata.employmentstatus} 
-                                                onChange={handleformchange} 
+                                            <select
+                                                name="employmentstatus"
+                                                value={formdata.employmentstatus}
+                                                onChange={handleformchange}
                                                 className={`border-2 rounded px-2 py-1 ${errors.employmentstatus ? 'border-red-500' : 'border-gray-700'}`}
                                             >
                                                 <option value="Probationary">Probationary</option>
