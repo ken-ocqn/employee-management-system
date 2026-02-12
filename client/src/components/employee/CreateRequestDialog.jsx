@@ -81,7 +81,7 @@ export const CreateRequestDialog = ({ employeeId }) => {
                     New Request
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px] rounded-3xl border-none shadow-2xl">
+            <DialogContent className="sm:max-w-[550px] rounded-3xl border-none shadow-2xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                         Submit New Request

@@ -514,20 +514,20 @@ export const EmployeeDashboard = () => {
                                         </Badge>
                                     </CardHeader>
                                     <CardContent className="p-0">
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-sm text-left">
+                                        <div className="overflow-x-auto responsive-table-scroll">
+                                            <table className="w-full text-sm text-left min-w-[600px]">
                                                 <thead>
                                                     <tr className="bg-slate-50/50 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                                                        <th className="px-6 py-4">Date & Status</th>
-                                                        <th className="px-6 py-4">Timeline & Location</th>
-                                                        <th className="px-6 py-4 text-right">Duration</th>
+                                                        <th className="px-4 sm:px-6 py-4">Date & Status</th>
+                                                        <th className="px-4 sm:px-6 py-4">Timeline & Location</th>
+                                                        <th className="px-4 sm:px-6 py-4 text-right">Duration</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
                                                     {attendanceLogs.length > 0 ? (
                                                         [...attendanceLogs].reverse().slice(0, 5).map((log, idx) => (
                                                             <tr key={idx} className="group hover:bg-slate-50/80 transition-all duration-300">
-                                                                <td className="px-6 py-4">
+                                                                <td className="px-4 sm:px-6 py-4">
                                                                     <div className="flex flex-col">
                                                                         <span className="font-bold text-slate-700 tracking-tight">
                                                                             {new Date(log.logdate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -542,7 +542,7 @@ export const EmployeeDashboard = () => {
                                                                         </div>
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-6 py-4">
+                                                                <td className="px-4 sm:px-6 py-4">
                                                                     <div className="flex flex-col gap-2">
                                                                         <div className="flex items-center gap-4">
                                                                             {/* Clock In */}
@@ -589,7 +589,7 @@ export const EmployeeDashboard = () => {
                                                                         )}
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-6 py-4 text-right">
+                                                                <td className="px-4 sm:px-6 py-4 text-right">
                                                                     <div className="flex flex-col items-end">
                                                                         <span className="font-bold text-slate-700 text-sm">
                                                                             {calculateDuration(log.loginTime, log.logoutTime) || "--"}
@@ -678,19 +678,19 @@ export const EmployeeDashboard = () => {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-0">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-left">
+                                    <div className="overflow-x-auto responsive-table-scroll">
+                                        <table className="w-full text-sm text-left min-w-[600px]">
                                             <thead>
                                                 <tr className="bg-slate-50/50 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                                                    <th className="px-8 py-4">Leave Type</th>
-                                                    <th className="px-8 py-4">Duration & Dates</th>
-                                                    <th className="px-8 py-4 text-right">Current Status</th>
+                                                    <th className="px-4 sm:px-8 py-4">Leave Type</th>
+                                                    <th className="px-4 sm:px-8 py-4">Duration & Dates</th>
+                                                    <th className="px-4 sm:px-8 py-4 text-right">Current Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-50">
                                                 {myLeaves.length > 0 ? myLeaves.slice(0, 5).map((leave) => (
                                                     <tr key={leave._id} className="group hover:bg-slate-50/80 transition-all duration-300">
-                                                        <td className="px-8 py-5">
+                                                        <td className="px-4 sm:px-8 py-5">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-white transition-colors">
                                                                     {getLeaveIcon(leave.leaveType)}
@@ -698,7 +698,7 @@ export const EmployeeDashboard = () => {
                                                                 <span className="font-bold text-slate-700">{leave.leaveType}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-8 py-5">
+                                                        <td className="px-4 sm:px-8 py-5">
                                                             <div className="flex flex-col">
                                                                 <span className="text-slate-600 font-semibold tracking-tight">
                                                                     {new Date(leave.startdate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - {new Date(leave.enddate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -708,7 +708,7 @@ export const EmployeeDashboard = () => {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-8 py-5 text-right">
+                                                        <td className="px-4 sm:px-8 py-5 text-right">
                                                             <Badge className={`${leave.status === "Approved" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                                                                 leave.status === "Rejected" ? "bg-rose-50 text-rose-600 border-rose-100" :
                                                                     "bg-amber-50 text-amber-600 border-amber-100"
@@ -764,21 +764,21 @@ export const EmployeeDashboard = () => {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-0">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-left">
+                                    <div className="overflow-x-auto responsive-table-scroll">
+                                        <table className="w-full text-sm text-left min-w-[700px]">
                                             <thead>
                                                 <tr className="bg-slate-50/50 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                                                    <th className="px-8 py-4">Title</th>
-                                                    <th className="px-8 py-4">Content</th>
-                                                    <th className="px-8 py-4">Submitted</th>
-                                                    <th className="px-8 py-4">Attachment</th>
-                                                    <th className="px-8 py-4 text-right">Status</th>
+                                                    <th className="px-4 sm:px-8 py-4">Title</th>
+                                                    <th className="px-4 sm:px-8 py-4">Content</th>
+                                                    <th className="px-4 sm:px-8 py-4">Submitted</th>
+                                                    <th className="px-4 sm:px-8 py-4">Attachment</th>
+                                                    <th className="px-4 sm:px-8 py-4 text-right">Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-50">
                                                 {allRequests && allRequests.length > 0 ? allRequests.slice(0, 5).map((request) => (
                                                     <tr key={request._id} className="group hover:bg-slate-50/80 transition-all duration-300">
-                                                        <td className="px-8 py-5">
+                                                        <td className="px-4 sm:px-8 py-5">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-white transition-colors">
                                                                     <FileText className="w-4 h-4 text-violet-600" />
@@ -786,12 +786,12 @@ export const EmployeeDashboard = () => {
                                                                 <span className="font-bold text-slate-700">{request.requesttitle}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-8 py-5">
-                                                            <div className="max-w-[300px] truncate text-slate-600 font-medium" title={request.requestconent}>
+                                                        <td className="px-4 sm:px-8 py-5">
+                                                            <div className="max-w-[200px] sm:max-w-[300px] truncate text-slate-600 font-medium" title={request.requestconent}>
                                                                 {request.requestconent}
                                                             </div>
                                                         </td>
-                                                        <td className="px-8 py-5">
+                                                        <td className="px-4 sm:px-8 py-5">
                                                             <div className="flex flex-col">
                                                                 <span className="text-slate-600 font-semibold tracking-tight">
                                                                     {new Date(request.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -801,7 +801,7 @@ export const EmployeeDashboard = () => {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-8 py-5">
+                                                        <td className="px-4 sm:px-8 py-5">
                                                             {request.attachmentUrl ? (
                                                                 <a
                                                                     href={request.attachmentUrl}
@@ -816,7 +816,7 @@ export const EmployeeDashboard = () => {
                                                                 <span className="text-[10px] text-slate-400 font-bold uppercase italic">No File</span>
                                                             )}
                                                         </td>
-                                                        <td className="px-8 py-5 text-right">
+                                                        <td className="px-4 sm:px-8 py-5 text-right">
                                                             <Badge className={`${request.status === "Approved" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                                                                 request.status === "Denied" ? "bg-rose-50 text-rose-600 border-rose-100" :
                                                                     "bg-amber-50 text-amber-600 border-amber-100"

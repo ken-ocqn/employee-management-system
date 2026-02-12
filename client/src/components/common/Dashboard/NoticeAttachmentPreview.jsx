@@ -40,14 +40,15 @@ export const NoticeAttachmentPreview = ({ noticeID, attachmentName, attachmentTy
                     size="sm"
                     onClick={handlePreview}
                     disabled={isLoading}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 text-xs shrink-0"
                 >
-                    {isImage ? <ImageIcon className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
-                    {isLoading ? "Loading..." : "Preview"}
+                    {isImage ? <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                    <span className="hidden xs:inline sm:inline">{isLoading ? "Loading..." : "Preview"}</span>
+                    <span className="inline xs:hidden sm:hidden">{isLoading ? "..." : "View"}</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-                <DialogTitle>{attachmentName || "Attachment Preview"}</DialogTitle>
+            <DialogContent className="w-[95vw] sm:w-full sm:max-w-4xl max-h-[90vh] overflow-auto">
+                <DialogTitle className="text-sm sm:text-base">{attachmentName || "Attachment Preview"}</DialogTitle>
                 {previewUrl && (
                     <div className="flex flex-col gap-4">
                         {isImage && (

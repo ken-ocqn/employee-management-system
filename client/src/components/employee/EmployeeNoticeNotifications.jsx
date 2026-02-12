@@ -95,12 +95,12 @@ export const EmployeeNoticeNotifications = () => {
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[600px] max-h-[500px] overflow-auto p-0" align="end">
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 z-10">
-                    <h3 className="text-lg font-bold text-slate-800">Notices</h3>
-                    <p className="text-xs text-slate-500">System announcements and updates</p>
+            <PopoverContent className="w-[90vw] sm:w-[500px] md:w-[600px] max-h-[80vh] overflow-auto p-0" align="end">
+                <div className="sticky top-0 bg-white border-b border-slate-100 px-4 sm:px-6 py-3 sm:py-4 z-10">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-800">Notices</h3>
+                    <p className="text-[10px] sm:text-xs text-slate-500">System announcements and updates</p>
                 </div>
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                     {isLoading ? (
                         <div className="py-8 text-center text-slate-400">Loading...</div>
                     ) : notices.length === 0 ? (
@@ -113,9 +113,9 @@ export const EmployeeNoticeNotifications = () => {
                             {notices.map((notice) => (
                                 <div
                                     key={notice._id}
-                                    className="p-4 rounded-xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-200"
+                                    className="p-3 sm:p-4 rounded-xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-200"
                                 >
-                                    <div className="flex items-start justify-between gap-3 mb-2">
+                                    <div className="flex flex-col gap-3">
                                         <div className="flex-1">
                                             <h4 className="font-bold text-slate-800 text-sm mb-1">
                                                 {notice.title}
@@ -127,8 +127,8 @@ export const EmployeeNoticeNotifications = () => {
                                                 <Badge
                                                     variant="outline"
                                                     className={`text-[10px] px-2 py-0.5 ${notice.audience === "Employee-Specific"
-                                                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                                                        : "bg-purple-50 text-purple-700 border-purple-200"
+                                                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                                                            : "bg-purple-50 text-purple-700 border-purple-200"
                                                         }`}
                                                 >
                                                     {notice.audience === "Employee-Specific" ? "Personal" : notice.department?.name || "Department"}
@@ -143,11 +143,13 @@ export const EmployeeNoticeNotifications = () => {
                                             </div>
                                         </div>
                                         {notice.attachmentUrl && (
-                                            <NoticeAttachmentPreview
-                                                noticeID={notice._id}
-                                                attachmentName={notice.attachmentName}
-                                                attachmentType={notice.attachmentType}
-                                            />
+                                            <div className="flex justify-end sm:justify-start">
+                                                <NoticeAttachmentPreview
+                                                    noticeID={notice._id}
+                                                    attachmentName={notice.attachmentName}
+                                                    attachmentType={notice.attachmentType}
+                                                />
+                                            </div>
                                         )}
                                     </div>
                                 </div>

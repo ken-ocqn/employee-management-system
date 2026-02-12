@@ -71,7 +71,7 @@ export const ApplyLeaveDialog = ({ employeeCredits, employeeId, onApplySuccess }
             <DialogTrigger asChild>
                 <Button className="bg-blue-600 hover:bg-blue-700">Apply for Leave</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Apply for Leave</DialogTitle>
                 </DialogHeader>
