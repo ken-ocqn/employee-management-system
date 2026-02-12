@@ -35,6 +35,7 @@ app.use(cookieParser())
 const allowedOrigins = [
   "http://localhost:5173",
   "https://cpp-hris-app.vercel.app",
+  "http://47.130.162.157",
   process.env.CLIENT_URL
 ];
 
