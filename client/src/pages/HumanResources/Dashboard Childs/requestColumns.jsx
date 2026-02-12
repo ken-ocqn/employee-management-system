@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useDispatch, useSelector } from "react-redux"
 import { HandleUpdateRequestStatus, HandleGetRequests } from "../../../redux/Thunks/RequestThunk"
-import { UploadAttachmentDialog } from "../../../components/hr/UploadAttachmentDialog"
+import { UploadAttachmentDialog } from "../../../components/HR/UploadAttachmentDialog"
 import { FileText, Paperclip } from "lucide-react"
 
 export const requestColumns = [
