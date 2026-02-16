@@ -137,6 +137,9 @@ const EmployeeSchema = new Schema({
         emergencyLeave: { type: Number, default: 5 },
         maternityLeave: { type: Number, default: 105 },
         paternityLeave: { type: Number, default: 7 }
+    },
+    photo: {
+        type: String
     }
 },
     { timestamps: true }

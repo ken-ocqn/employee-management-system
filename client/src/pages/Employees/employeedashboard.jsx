@@ -343,7 +343,15 @@ export const EmployeeDashboard = () => {
                         <div className="relative group">
                             <div className="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-indigo-400 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                             <div className="relative h-20 w-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-2xl overflow-hidden">
-                                <User className="w-10 h-10 animate-in zoom-in-75 duration-500" />
+                                {employee.photo ? (
+                                    <img
+                                        src={employee.photo}
+                                        alt={`${employee.firstname} ${employee.lastname}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <User className="w-10 h-10 animate-in zoom-in-75 duration-500" />
+                                )}
                                 <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                         </div>

@@ -92,47 +92,60 @@ export const EntryPage = () => {
     }
 
     return (
-        <div className="entry-page-container h-screen flex flex-col justify-center items-center bg-gray-50">
+        <div className="relative">
             <LoadingBar ref={loadingbar} />
-            <div className="w-full max-w-4xl p-4">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-blue-600 mb-2">Welcome to Employee Management System</h1>
-                    <p className="text-gray-600">Please select your role to login</p>
-                </div>
 
-                <Tabs defaultValue="employee" className="w-full flex flex-col items-center" onValueChange={setActiveTab}>
-                    <TabsList className="grid w-[400px] grid-cols-2 mb-8">
-                        <TabsTrigger value="employee">Employee</TabsTrigger>
-                        <TabsTrigger value="hr">HR Admin</TabsTrigger>
-                    </TabsList>
+            <Tabs defaultValue="employee" className="w-full" onValueChange={setActiveTab}>
+                <TabsContent value="employee" className="m-0 border-none p-0 outline-none">
+                    <SignIn
+                        handlesigninform={handleEmployeeChange}
+                        handlesigninsubmit={handleEmployeeSubmit}
+                        targetedstate={EmployeeState}
+                        statevalue={employeeForm}
+                        redirectpath={"/auth/employee/forgot-password"}
+                    >
+                        <TabsList className="bg-slate-100/50 backdrop-blur-md p-1.5 rounded-[1.25rem] border border-white/40 shadow-inner w-[320px] h-14">
+                            <TabsTrigger
+                                value="employee"
+                                className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-300 h-full"
+                            >
+                                Employee
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="hr"
+                                className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-300 h-full"
+                            >
+                                HR Admin
+                            </TabsTrigger>
+                        </TabsList>
+                    </SignIn>
+                </TabsContent>
 
-                    <TabsContent value="employee" className="w-full">
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                            <SignIn
-                                image={"/assets/Employee-Welcome.jpg"}
-                                handlesigninform={handleEmployeeChange}
-                                handlesigninsubmit={handleEmployeeSubmit}
-                                targetedstate={EmployeeState}
-                                statevalue={employeeForm}
-                                redirectpath={"/auth/employee/forgot-password"}
-                            />
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value="hr" className="w-full">
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                            <SignIn
-                                image={"/assets/Employee-Welcome.jpg"}
-                                handlesigninform={handleHRChange}
-                                handlesigninsubmit={handleHRSubmit}
-                                targetedstate={HRState}
-                                statevalue={hrForm}
-                                redirectpath={"/auth/HR/forgot-password"}
-                            />
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </div>
+                <TabsContent value="hr" className="m-0 border-none p-0 outline-none">
+                    <SignIn
+                        handlesigninform={handleHRChange}
+                        handlesigninsubmit={handleHRSubmit}
+                        targetedstate={HRState}
+                        statevalue={hrForm}
+                        redirectpath={"/auth/HR/forgot-password"}
+                    >
+                        <TabsList className="bg-slate-100/50 backdrop-blur-md p-1.5 rounded-[1.25rem] border border-white/40 shadow-inner w-[320px] h-14">
+                            <TabsTrigger
+                                value="employee"
+                                className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-300 h-full"
+                            >
+                                Employee
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="hr"
+                                className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-300 h-full"
+                            >
+                                HR Admin
+                            </TabsTrigger>
+                        </TabsList>
+                    </SignIn>
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }

@@ -1,8 +1,9 @@
 import express from "express"
-import { HandleAllEmployees, HandleEmployeeUpdate, HandleEmployeeDelete, HandleEmployeeByHR, HandleEmployeeByEmployee, HandleAllEmployeesIDS } from "../controllers/Employee.controller.js"
+import { HandleAllEmployees, HandleEmployeeUpdate, HandleEmployeeDelete, HandleEmployeeByHR, HandleEmployeeByEmployee, HandleAllEmployeesIDS, HandleEmployeePhotoUpload, HandleEmployeePhotoDelete } from "../controllers/Employee.controller.js"
 import { VerifyhHRToken } from "../middlewares/Auth.middleware.js"
 import { RoleAuthorization } from "../middlewares/RoleAuth.middleware.js"
 import { VerifyEmployeeToken } from "../middlewares/Auth.middleware.js"
+import { uploadEmployeePhoto } from "../utils/s3EmployeePhotoConfig.js"
 
 const router = express.Router()
 
@@ -21,6 +22,9 @@ router.get("/by-HR/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), 
 
 router.get("/by-employee", VerifyEmployeeToken, HandleEmployeeByEmployee)
 
+router.post("/upload-photo/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), uploadEmployeePhoto.single('photo'), HandleEmployeePhotoUpload)
+
+router.delete("/delete-photo/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeePhotoDelete)
 
 
 export default router
