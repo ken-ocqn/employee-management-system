@@ -20,6 +20,7 @@ import BalanceRouter from './routes/Balance.route.js'
 import OrganizationRouter from './routes/Organization.route.js'
 import { ConnectDB } from './config/connectDB.js';
 import { syncOrganizationDefaults } from './scripts/syncOrganizationDefaults.js';
+import initCronJobs from './services/cron.service.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors"
 
@@ -27,6 +28,7 @@ import cors from "cors"
 dotenv.config()
 await ConnectDB()
 await syncOrganizationDefaults()
+initCronJobs()
 const app = express();
 app.use(bodyParser.json())
 app.use(cookieParser())

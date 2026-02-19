@@ -39,8 +39,12 @@ export const HandleCreateLeave = async (req, res) => {
         // Credit check
         if (leaveType !== "Unpaid") {
             const creditField = leaveType.charAt(0).toLowerCase() + leaveType.slice(1) + "Leave"
-            if (employee.leaveCredits[creditField] < dayCount) {
-                return res.status(400).json({ success: false, message: `Insufficient ${leaveType} leave credits. Available: ${employee.leaveCredits[creditField]}` })
+            const expiringField = "expiring" + leaveType.charAt(0).toUpperCase() + leaveType.slice(1) + "Leave"
+
+            const totalCredits = (employee.leaveCredits[creditField] || 0) + (employee.leaveCredits[expiringField] || 0)
+
+            if (totalCredits < dayCount) {
+                return res.status(400).json({ success: false, message: `Insufficient ${leaveType} leave credits. Available: ${totalCredits}` })
             }
         }
 
@@ -147,11 +151,26 @@ export const HandleUpdateLeavebyHR = async (req, res) => {
         if (leave.leaveType !== "Unpaid") {
             const employee = await Employee.findById(leave.employee)
             const creditField = leave.leaveType.charAt(0).toLowerCase() + leave.leaveType.slice(1) + "Leave"
+            const expiringField = "expiring" + leave.leaveType.charAt(0).toUpperCase() + leave.leaveType.slice(1) + "Leave"
 
             if (status === "Approved" && oldStatus !== "Approved") {
-                employee.leaveCredits[creditField] -= leave.dayCount
+                // FIFO: Deduct from expiring first
+                let remainingToDeduct = leave.dayCount
+                const expiringBalance = employee.leaveCredits[expiringField] || 0
+
+                if (expiringBalance > 0) {
+                    const deduction = Math.min(expiringBalance, remainingToDeduct)
+                    employee.leaveCredits[expiringField] -= deduction
+                    remainingToDeduct -= deduction
+                }
+
+                if (remainingToDeduct > 0) {
+                    employee.leaveCredits[creditField] -= remainingToDeduct
+                }
+
                 await employee.save()
             } else if (status !== "Approved" && oldStatus === "Approved") {
+                // Restoration: Default to main bucket for simplicity
                 employee.leaveCredits[creditField] += leave.dayCount
                 await employee.save()
             }
